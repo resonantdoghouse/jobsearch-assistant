@@ -8,6 +8,11 @@ import dbConnect from "@/lib/db/connect";
 import ResumeAnalysis from "@/lib/db/models/ResumeAnalysis";
 
 export async function POST(req: NextRequest) {
+  const session = await auth();
+  if (!session) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   try {
     const formData = await req.formData();
     const file = formData.get("file") as File;
