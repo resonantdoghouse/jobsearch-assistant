@@ -1,9 +1,16 @@
 "use client";
 
 import Link from 'next/link';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { usePathname } from 'next/navigation';
 
-export function Navbar() {
+interface User {
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+}
+
+export function Navbar({ user }: { user?: User }) {
   return (
     <nav className="bg-white border-b border-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -17,10 +24,35 @@ export function Navbar() {
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
               <NavLink href="/resume-review">Resume Review</NavLink>
               <NavLink href="/cover-letter">Cover Letter</NavLink>
+              {user && <NavLink href="/dashboard">Dashboard</NavLink>}
             </div>
           </div>
           <div className="hidden sm:ml-6 sm:flex sm:items-center">
-            {/* Future Account/Settings placeholder */}
+            {user ? (
+              <div className="flex items-center gap-4">
+                <span className="text-sm text-gray-700">{user.name}</span>
+                {user.image ? (
+                   <Link href="/dashboard">
+                    <img 
+                      className="h-8 w-8 rounded-full border border-gray-200" 
+                      src={user.image} 
+                      alt="" 
+                    />
+                   </Link>
+                ) : (
+                  <Link href="/dashboard" className="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center text-gray-500">
+                    {user.name?.[0]}
+                  </Link>
+                )}
+              </div>
+            ) : (
+              <Link
+                href="/login"
+                className="text-sm font-medium text-blue-600 hover:text-blue-500"
+              >
+                Sign in
+              </Link>
+            )}
           </div>
         </div>
       </div>
