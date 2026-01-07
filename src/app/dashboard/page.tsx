@@ -1,26 +1,31 @@
-import { auth, signOut } from "@/auth"
-import { redirect } from "next/navigation"
-import dbConnect from "@/lib/db/connect"
-import Resume from "@/lib/db/models/Resume"
-import ResumeAnalysis from "@/lib/db/models/ResumeAnalysis"
-import CoverLetter from "@/lib/db/models/CoverLetter"
-import { DashboardClient } from "./DashboardClient"
+import { auth, signOut } from "@/auth";
+import { redirect } from "next/navigation";
+import dbConnect from "@/lib/db/connect";
+import Resume from "@/lib/db/models/Resume";
+import ResumeAnalysis from "@/lib/db/models/ResumeAnalysis";
+import CoverLetter from "@/lib/db/models/CoverLetter";
+import { DashboardClient } from "./DashboardClient";
 
 export default async function DashboardPage() {
-  const session = await auth()
-  
+  const session = await auth();
+
   if (!session?.user) {
-    redirect("/login")
+    redirect("/login");
   }
 
   await dbConnect();
-  
+
   // Fetch User ID
-  const User = (await import("mongoose")).models.User || (await import("mongoose")).model("User", new (await import("mongoose")).Schema({}));
+  const User =
+    (await import("mongoose")).models.User ||
+    (await import("mongoose")).model(
+      "User",
+      new (await import("mongoose")).Schema({})
+    );
   const user = await User.findOne({ email: session.user.email });
 
   if (!user) {
-      redirect("/login");
+    redirect("/login");
   }
 
   // Fetch Data in parallel
@@ -36,8 +41,8 @@ export default async function DashboardPage() {
         <h1 className="text-3xl font-bold">Dashboard</h1>
         <form
           action={async () => {
-            "use server"
-            await signOut()
+            "use server";
+            await signOut({ redirectTo: "/" });
           }}
         >
           <button className="text-sm text-gray-600 hover:text-red-500 font-medium px-4 py-2 rounded transition-colors">
@@ -45,13 +50,13 @@ export default async function DashboardPage() {
           </button>
         </form>
       </div>
-      
-      <DashboardClient 
+
+      <DashboardClient
         user={session.user}
         resumes={JSON.parse(JSON.stringify(resumes))}
         analyses={JSON.parse(JSON.stringify(analyses))}
         coverLetters={JSON.parse(JSON.stringify(coverLetters))}
       />
     </div>
-  )
+  );
 }
