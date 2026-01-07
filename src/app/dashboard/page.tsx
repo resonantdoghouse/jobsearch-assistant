@@ -1,5 +1,10 @@
 import { auth, signOut } from "@/auth"
 import { redirect } from "next/navigation"
+import dbConnect from "@/lib/db/connect"
+import Resume from "@/lib/db/models/Resume"
+import ResumeAnalysis from "@/lib/db/models/ResumeAnalysis"
+import CoverLetter from "@/lib/db/models/CoverLetter"
+import { DashboardClient } from "./DashboardClient"
 
 export default async function DashboardPage() {
   const session = await auth()
@@ -7,6 +12,23 @@ export default async function DashboardPage() {
   if (!session?.user) {
     redirect("/login")
   }
+
+  await dbConnect();
+  
+  // Fetch User ID
+  const User = (await import("mongoose")).models.User || (await import("mongoose")).model("User", new (await import("mongoose")).Schema({}));
+  const user = await User.findOne({ email: session.user.email });
+
+  if (!user) {
+      redirect("/login");
+  }
+
+  // Fetch Data in parallel
+  const [resumes, analyses, coverLetters] = await Promise.all([
+    Resume.find({ userId: user._id }).sort({ updatedAt: -1 }).lean(),
+    ResumeAnalysis.find({ userId: user._id }).sort({ createdAt: -1 }).lean(),
+    CoverLetter.find({ userId: user._id }).sort({ createdAt: -1 }).lean(),
+  ]);
 
   return (
     <div>
@@ -24,32 +46,12 @@ export default async function DashboardPage() {
         </form>
       </div>
       
-      <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 min-h-[300px]">
-        <div className="flex items-center gap-4 mb-6">
-          {session.user.image && (
-            <img 
-              src={session.user.image} 
-              alt={session.user.name || "User"} 
-              className="w-16 h-16 rounded-full"
-            />
-          )}
-          <div>
-            <h2 className="text-xl font-semibold">Welcome back, {session.user.name}!</h2>
-            <p className="text-gray-500">{session.user.email}</p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="border border-gray-200 rounded p-4">
-            <h3 className="font-semibold mb-2">Recent Resumes</h3>
-            <p className="text-gray-500 text-sm italic">No saved resumes yet.</p>
-          </div>
-          <div className="border border-gray-200 rounded p-4">
-            <h3 className="font-semibold mb-2">Recent Cover Letters</h3>
-            <p className="text-gray-500 text-sm italic">No saved cover letters yet.</p>
-          </div>
-        </div>
-      </div>
+      <DashboardClient 
+        user={session.user}
+        resumes={JSON.parse(JSON.stringify(resumes))}
+        analyses={JSON.parse(JSON.stringify(analyses))}
+        coverLetters={JSON.parse(JSON.stringify(coverLetters))}
+      />
     </div>
   )
 }

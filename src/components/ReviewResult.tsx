@@ -19,7 +19,7 @@ export function ReviewResult({ analysis }: { analysis: string }) {
                 strong: ({node, ...props}) => <strong className="font-semibold text-gray-900" {...props} />,
             }}
          >
-            {analysis}
+            {analysis.replace(/^```markdown\n/, '').replace(/^```\n/, '').replace(/\n```$/, '')}
          </ReactMarkdown>
       </div>
     </div>
