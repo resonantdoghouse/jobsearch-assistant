@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-export function ResumeUploader({ onAnalysisComplete }: { onAnalysisComplete: (analysis: string) => void }) {
+export function ResumeUploader({ onAnalysisComplete }: { onAnalysisComplete: (analysis: string, extractedText: string) => void }) {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -33,7 +33,7 @@ export function ResumeUploader({ onAnalysisComplete }: { onAnalysisComplete: (an
       }
 
       const data = await res.json();
-      onAnalysisComplete(data.analysis);
+      onAnalysisComplete(data.analysis, data.extractedText);
     } catch (err) {
       setError("An error occurred during analysis. Please try again.");
       console.error(err);

@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
     const response = await result.response;
     const analysis = response.text();
 
-    return NextResponse.json({ analysis });
+    return NextResponse.json({ analysis, extractedText: text });
   } catch (error) {
     console.error("Resume analysis error:", error);
     return NextResponse.json(
