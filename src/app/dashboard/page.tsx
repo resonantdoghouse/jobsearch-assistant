@@ -1,4 +1,5 @@
 import { auth, signOut } from "@/auth";
+import { SignOutButton } from "@/components/SignOutButton";
 import { redirect } from "next/navigation";
 import dbConnect from "@/lib/db/connect";
 import Resume from "@/lib/db/models/Resume";
@@ -39,16 +40,12 @@ export default async function DashboardPage() {
     <div>
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Dashboard</h1>
-        <form
-          action={async () => {
-            "use server";
-            await signOut({ redirectTo: "/" });
-          }}
-        >
-          <button className="text-sm text-gray-600 hover:text-red-500 font-medium px-4 py-2 rounded transition-colors">
-            Sign Out
-          </button>
-        </form>
+          <SignOutButton 
+            signOutAction={async () => {
+              "use server"
+              await signOut({ redirectTo: "/" })
+            }}
+          />
       </div>
 
       <DashboardClient
