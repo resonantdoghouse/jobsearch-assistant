@@ -67,7 +67,7 @@ export default function ResumeReviewPage() {
 
       {rewrittenResume && (
         <div className="mt-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
-           <ResumePreview content={rewrittenResume} />
+           <ResumePreview content={rewrittenResume} analysis={analysis} />
         </div>
       )}
     </div>

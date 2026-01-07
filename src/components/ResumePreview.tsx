@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useReactToPrint } from "react-to-print";
 import ReactMarkdown from "react-markdown";
 
@@ -38,13 +38,46 @@ interface ResumeData {
   }>;
 }
 
-export function ResumePreview({ content }: { content: ResumeData | string }) {
+export function ResumePreview({ content, analysis }: { content: ResumeData | string, analysis?: string }) {
   const contentRef = useRef<HTMLDivElement>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   const handlePrint = useReactToPrint({
     contentRef: contentRef,
     documentTitle: typeof content === 'object' ? `${content.fullName.replace(/\s+/g, '_')}_Resume` : "Optimized_Resume",
   });
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+        const title = typeof content === 'object' ? `${content.fullName}'s Resume` : "My Resume";
+        const res = await fetch("/api/resumes", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                title,
+                content,
+                analysis
+            })
+        });
+
+        if (res.ok) {
+            alert("Resume saved successfully to your Dashboard!");
+        } else {
+            const err = await res.json();
+            if (res.status === 401) {
+                 alert("You must be logged in to save resumes.");
+            } else {
+                alert(`Failed to save: ${err.error || "Unknown error"}`);
+            }
+        }
+    } catch (e) {
+        console.error(e);
+        alert("An error occurred while saving.");
+    } finally {
+        setIsSaving(false);
+    }
+  };
 
   if (!content) return null;
 
@@ -54,7 +87,16 @@ export function ResumePreview({ content }: { content: ResumeData | string }) {
          <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
              <div className="flex justify-between items-center mb-6 border-b pb-4">
                <h3 className="text-xl font-bold text-gray-900">Preview (Markdown)</h3>
-               <button onClick={() => handlePrint && handlePrint()} className="bg-green-600 text-white px-4 py-2 rounded">Download PDF</button>
+               <div className="flex gap-3">
+                   <button 
+                    onClick={handleSave} 
+                    disabled={isSaving}
+                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded transition-colors disabled:opacity-50"
+                   >
+                    {isSaving ? "Saving..." : "Save to Dashboard"}
+                   </button>
+                   <button onClick={() => handlePrint && handlePrint()} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded transition-colors">Download PDF</button>
+               </div>
              </div>
              <div className="bg-gray-50 p-8 rounded-lg overflow-auto">
                 <div ref={contentRef} className="bg-white p-[40px] text-gray-800 prose max-w-[210mm] mx-auto min-h-[297mm]">
@@ -71,12 +113,21 @@ export function ResumePreview({ content }: { content: ResumeData | string }) {
     <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
       <div className="flex justify-between items-center mb-6 border-b pb-4">
         <h3 className="text-xl font-bold text-gray-900">Professional Resume Preview</h3>
-        <button
-          onClick={() => handlePrint && handlePrint()}
-          className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
-        >
-          <span>Download PDF</span>
-        </button>
+        <div className="flex gap-3">
+            <button 
+                onClick={handleSave} 
+                disabled={isSaving}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-50"
+            >
+                {isSaving ? "Saving..." : "Save to Dashboard"}
+            </button>
+            <button
+            onClick={() => handlePrint && handlePrint()}
+            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2"
+            >
+            <span>Download PDF</span>
+            </button>
+        </div>
       </div>
 
       <div className="bg-gray-50 p-8 rounded-lg border border-gray-200 overflow-auto max-h-[800px]">
