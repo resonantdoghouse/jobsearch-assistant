@@ -18,6 +18,7 @@ export default function CoverLetterPage() {
   });
   const [generatedLetter, setGeneratedLetter] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [savedResumes, setSavedResumes] = useState<Resume[]>([]);
 
   useEffect(() => {
@@ -91,6 +92,34 @@ export default function CoverLetterPage() {
       alert("Failed to generate cover letter");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!generatedLetter) return;
+    setIsSaving(true);
+    try {
+      const res = await fetch("/api/cover-letters", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          content: generatedLetter,
+          jobTitle: formData.jobTitle,
+          company: formData.company,
+          jobDescription: formData.description,
+        }),
+      });
+      if (res.ok) {
+        alert("Cover letter saved to dashboard!");
+      } else {
+        const data = await res.json();
+        alert(data.error || "Failed to save cover letter");
+      }
+    } catch (error) {
+      console.error("Failed to save", error);
+      alert("Failed to save cover letter");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -194,7 +223,18 @@ export default function CoverLetterPage() {
 
         {/* Output Area */}
         <div className="bg-gray-50 p-6 rounded-xl border border-gray-200">
-          <h2 className="text-lg font-semibold mb-4">Generated Letter</h2>
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold">Generated Letter</h2>
+            {generatedLetter && (
+              <button
+                onClick={handleSave}
+                disabled={isSaving}
+                className="text-sm bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700 disabled:opacity-50"
+              >
+                {isSaving ? "Saving..." : "Save to Dashboard"}
+              </button>
+            )}
+          </div>
           {generatedLetter ? (
             <div className="whitespace-pre-wrap text-sm text-gray-800 font-serif leading-relaxed">
               {generatedLetter}
