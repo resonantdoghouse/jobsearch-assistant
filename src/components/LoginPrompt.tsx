@@ -47,7 +47,8 @@ export function LoginPrompt({ title, description }: LoginPromptProps) {
         </div>
 
         <p className="mt-8 text-sm text-gray-500">
-          Join thousands of developers enhancing their job search.
+          An experimental tool designed to help developers with their job
+          search.
         </p>
       </div>
     </div>
