@@ -1,4 +1,4 @@
-import { auth, signOut } from "@/auth";
+import { auth } from "@/auth";
 import { SignOutButton } from "@/components/SignOutButton";
 import { LoginPrompt } from "@/components/LoginPrompt";
 import dbConnect from "@/lib/db/connect";
@@ -51,29 +51,7 @@ export default async function DashboardPage() {
     <div>
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Dashboard</h1>
-        <SignOutButton
-          signOutAction={async () => {
-            "use server";
-            const { cookies } = await import("next/headers");
-            const cookieStore = await cookies();
-
-            // Explicitly clear all potential auth cookies
-            const cookiesToDelete = [
-              "authjs.session-token",
-              "__Secure-authjs.session-token",
-              "next-auth.session-token",
-              "__Secure-next-auth.session-token",
-              "authjs.csrf-token",
-              "__Host-authjs.csrf-token",
-            ];
-
-            cookiesToDelete.forEach((name) => {
-              cookieStore.delete(name);
-            });
-
-            await signOut({ redirectTo: "/" });
-          }}
-        />
+        <SignOutButton />
       </div>
 
       <DashboardClient
