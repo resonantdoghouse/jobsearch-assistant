@@ -9,5 +9,5 @@ if (!apiKey) {
 const genAI = new GoogleGenerativeAI(apiKey || "");
 
 export const getGeminiModel = () => {
-  return genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite-preview-02-05" });
+  return genAI.getGenerativeModel({ model: "gemini-2.5-pro" });
 };
