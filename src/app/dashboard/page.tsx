@@ -54,6 +54,8 @@ export default async function DashboardPage() {
         <SignOutButton
           signOutAction={async () => {
             "use server";
+            const { revalidatePath } = await import("next/cache");
+            revalidatePath("/", "layout");
             await signOut({ redirectTo: "/" });
           }}
         />
