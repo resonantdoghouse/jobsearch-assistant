@@ -1,6 +1,6 @@
 import { auth, signOut } from "@/auth";
 import { SignOutButton } from "@/components/SignOutButton";
-import { redirect } from "next/navigation";
+import { LoginPrompt } from "@/components/LoginPrompt";
 import dbConnect from "@/lib/db/connect";
 import Resume from "@/lib/db/models/Resume";
 import ResumeAnalysis from "@/lib/db/models/ResumeAnalysis";
@@ -10,8 +10,13 @@ import { DashboardClient } from "./DashboardClient";
 export default async function DashboardPage() {
   const session = await auth();
 
-  if (!session?.user) {
-    redirect("/login");
+  if (!session?.user?.email) {
+    return (
+      <LoginPrompt
+        title="Your Career Dashboard"
+        description="Track your resumes, cover letters, and application progress in one place. Sign in to view your dashboard."
+      />
+    );
   }
 
   await dbConnect();
@@ -26,7 +31,13 @@ export default async function DashboardPage() {
   const user = await User.findOne({ email: session.user.email });
 
   if (!user) {
-    redirect("/login");
+    // Edge case: Session exists but user not in DB (shouldn't happen often with correct auth flow)
+    return (
+      <LoginPrompt
+        title="Account Not Found"
+        description="We couldn't find your account details. Please try signing in again."
+      />
+    );
   }
 
   // Fetch Data in parallel
@@ -40,12 +51,12 @@ export default async function DashboardPage() {
     <div>
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">Dashboard</h1>
-          <SignOutButton 
-            signOutAction={async () => {
-              "use server"
-              await signOut({ redirectTo: "/" })
-            }}
-          />
+        <SignOutButton
+          signOutAction={async () => {
+            "use server";
+            await signOut({ redirectTo: "/" });
+          }}
+        />
       </div>
 
       <DashboardClient
