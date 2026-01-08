@@ -14,8 +14,8 @@ export async function POST(req: NextRequest) {
 
     const model = getGeminiModel();
     const prompt = `
-      You are an expert professional writer.
-      Write a compelling cover letter for the following role:
+      You are an expert career coach and professional writer.
+      Write a concise, engaging, and human-sounding cover letter for the following role.
       
       Job Title: ${jobTitle}
       Company: ${company}
@@ -24,8 +24,13 @@ export async function POST(req: NextRequest) {
       My Resume/Background:
       ${resumeText}
       
-      The tone should be professional, enthusiastic, and tailored to the specific job requirements mentioned.
-      Highlight relevant skills from my resume that match the job description.
+      Guidelines:
+      1. Be concise and to the point. Avoid fluff.
+      2. Do NOT sound like an AI. Use natural, professional, yet conversational language.
+      3. Focus heavily on how I can bring specific value to ${company} based on my experience.
+      4. Express genuine passion and interest in the company and role.
+      5. Do not simply summarize the resume; connect the dots between my skills and the job needs.
+      6. Keep it under 300 words.
     `;
 
     const result = await model.generateContent(prompt);
@@ -33,11 +38,12 @@ export async function POST(req: NextRequest) {
     const coverLetter = response.text();
 
     return NextResponse.json({ coverLetter });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Cover letter generation error:", error);
+    const status = error.status || 500;
     return NextResponse.json(
-      { error: "Failed to generate cover letter" },
-      { status: 500 }
+      { error: error.message || "Failed to generate cover letter" },
+      { status }
     );
   }
 }

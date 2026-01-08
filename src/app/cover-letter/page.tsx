@@ -1,6 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+interface Resume {
+  _id: string;
+  title: string;
+  latestContent: string;
+  updatedAt: string;
+}
 
 export default function CoverLetterPage() {
   const [formData, setFormData] = useState({
@@ -11,6 +18,62 @@ export default function CoverLetterPage() {
   });
   const [generatedLetter, setGeneratedLetter] = useState("");
   const [loading, setLoading] = useState(false);
+  const [savedResumes, setSavedResumes] = useState<Resume[]>([]);
+
+  useEffect(() => {
+    async function fetchResumes() {
+      try {
+        const res = await fetch("/api/resumes");
+        if (res.ok) {
+          const data = await res.json();
+          setSavedResumes(data.resumes || []);
+        }
+      } catch (error) {
+        console.error("Failed to fetch resumes", error);
+      }
+    }
+    fetchResumes();
+  }, []);
+
+  const handleResumeSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const resumeId = e.target.value;
+    if (!resumeId) return;
+
+    const resume = savedResumes.find((r) => r._id === resumeId);
+    if (resume) {
+      let content = resume.latestContent;
+      try {
+        // specific parsing logic if it is a JSON string
+        const parsed = JSON.parse(content);
+        if (typeof parsed === "object") {
+          // Flatten the object into a readable string for the LLM
+          content = [
+            `Name: ${parsed.fullName}`,
+            `Summary: ${parsed.summary}`,
+            `Skills: ${parsed.skills?.languages?.join(
+              ", "
+            )} ${parsed.skills?.frameworks?.join(", ")}`,
+            `Experience:`,
+            parsed.experience
+              ?.map(
+                (exp: any) =>
+                  `- ${exp.role} at ${exp.company} (${
+                    exp.duration
+                  }): ${exp.description?.join(" ")}`
+              )
+              .join("\n"),
+            `Education:`,
+            parsed.education
+              ?.map((edu: any) => `- ${edu.degree} at ${edu.school}`)
+              .join("\n"),
+          ].join("\n\n");
+        }
+      } catch (e) {
+        // if not json, use as is
+      }
+      setFormData((prev) => ({ ...prev, resumeText: content }));
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,16 +94,21 @@ export default function CoverLetterPage() {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   return (
     <div className="max-w-4xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Cover Letter Generator</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          Cover Letter Generator
+        </h1>
         <p className="text-gray-600">
-          Provide the job details and your resume text to generate a tailored cover letter.
+          Provide the job details and your resume text to generate a tailored
+          cover letter.
         </p>
       </div>
 
@@ -48,7 +116,9 @@ export default function CoverLetterPage() {
         {/* Input Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Job Title</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Job Title
+            </label>
             <input
               name="jobTitle"
               required
@@ -58,7 +128,9 @@ export default function CoverLetterPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Company</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Company
+            </label>
             <input
               name="company"
               required
@@ -68,7 +140,9 @@ export default function CoverLetterPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Job Description</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Job Description
+            </label>
             <textarea
               name="description"
               rows={4}
@@ -78,7 +152,27 @@ export default function CoverLetterPage() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Your Resume Content (Text)</label>
+            <div className="flex justify-between items-center mb-1">
+              <label className="block text-sm font-medium text-gray-700">
+                Your Resume Content (Text)
+              </label>
+              {savedResumes.length > 0 && (
+                <select
+                  className="text-sm border-gray-300 text-gray-600 border rounded p-1"
+                  onChange={handleResumeSelect}
+                  defaultValue=""
+                >
+                  <option value="" disabled>
+                    Load Saved Resume...
+                  </option>
+                  {savedResumes.map((r) => (
+                    <option key={r._id} value={r._id}>
+                      {r.title} ({new Date(r.updatedAt).toLocaleDateString()})
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
             <textarea
               name="resumeText"
               required
