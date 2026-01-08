@@ -83,6 +83,25 @@ export function DashboardClient({
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Interview Prep Section */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 flex flex-col justify-between">
+          <div>
+            <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+              <span className="text-2xl">⚡</span> Interview Prep
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Practice coding problems with our new LeetCode-style assistant. 
+              Improve your algorithm skills before your next interview.
+            </p>
+          </div>
+          <Link 
+            href="/dashboard/interview-prep" 
+            className="block w-full text-center bg-indigo-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-indigo-700 transition-colors"
+          >
+            Start Practicing
+          </Link>
+        </div>
+
         {/* Resumes Section */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
           <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
@@ -168,7 +187,7 @@ export function DashboardClient({
         </div>
 
         {/* Cover Letters Section */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 lg:col-span-2">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
           <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
             <span className="text-2xl">✉️</span> Saved Cover Letters
           </h3>

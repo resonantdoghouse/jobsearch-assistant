@@ -24,6 +24,7 @@ export function Navbar({ user }: { user?: User }) {
             <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
               <NavLink href="/resume-review">Resume Review</NavLink>
               <NavLink href="/cover-letter">Cover Letter</NavLink>
+              <NavLink href="/dashboard/interview-prep">Interview Prep</NavLink>
               {user && <NavLink href="/dashboard">Dashboard</NavLink>}
             </div>
           </div>
