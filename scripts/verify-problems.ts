@@ -22,7 +22,7 @@ async function verify() {
     console.log(`Found ${problems.length} problems:`);
     problems.forEach(p => {
         console.log(`- [${p.difficulty}] ${p.title} (${p.slug})`);
-        const starter = p.starterCode?.get('javascript');
+        const starter = (p.starterCode as any)?.get('javascript');
         if (starter) {
              const hasVar = starter.includes('var ');
              const hasConst = starter.includes('const ');
