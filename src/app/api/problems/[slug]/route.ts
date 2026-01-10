@@ -3,7 +3,19 @@ import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/db/connect";
 import Problem from "@/lib/db/models/Problem";
 
-const MOCK_PROBLEMS_DETAILS: Record<string, any> = {
+interface MockProblem {
+  _id: string;
+  title: string;
+  slug: string;
+  difficulty: string;
+  description: string;
+  starterCode: {
+    javascript: string;
+  };
+  testCases: Array<{ input: string; output: string }>;
+}
+
+const MOCK_PROBLEMS_DETAILS: Record<string, MockProblem> = {
   "two-sum": {
     _id: "1",
     title: 'Two Sum',

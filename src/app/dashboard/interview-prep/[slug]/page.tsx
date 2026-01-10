@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Editor from "@monaco-editor/react";
 import ReactMarkdown from "react-markdown";
@@ -50,7 +50,6 @@ export default function ProblemPage() {
     
     try {
         const logs: string[] = [];
-        const log = (...args: any[]) => logs.push(args.join(" "));
         
         // Wrap user code to return the function
         // We assume user defines a function as per starter code
@@ -94,7 +93,6 @@ export default function ProblemPage() {
             `;
             
             try {
-                // eslint-disable-next-line no-new-func
                 const userFunc = new Function(runScript);
                 const result = userFunc();
                 const expected = JSON.parse(tc.output); // Input output strings in seed are JSON-ish
@@ -107,8 +105,8 @@ export default function ProblemPage() {
                     logs.push(`Test Case ${index + 1}: Failed. Expected ${expectedJson}, got ${resultJson}`);
                     allPassed = false;
                 }
-            } catch (e: any) {
-                logs.push(`Test Case ${index + 1}: Error - ${e.message}`);
+            } catch (e: unknown) {
+                logs.push(`Test Case ${index + 1}: Error - ${(e as Error).message}`);
                 allPassed = false;
             }
         });
@@ -116,8 +114,8 @@ export default function ProblemPage() {
         setOutput(logs);
         setStatus(allPassed ? "Success" : "Failed");
         
-    } catch (e: any) {
-        setOutput([`Runtime Error: ${e.message}`]);
+    } catch (e: unknown) {
+        setOutput([`Runtime Error: ${(e as Error).message}`]);
         setStatus("Failed");
     }
   };

@@ -4,6 +4,8 @@ import Link from 'next/link';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { usePathname } from 'next/navigation';
 
+import Image from 'next/image';
+
 interface User {
   name?: string | null;
   email?: string | null;
@@ -34,10 +36,13 @@ export function Navbar({ user }: { user?: User }) {
                 <span className="text-sm text-gray-700">{user.name}</span>
                 {user.image ? (
                    <Link href="/dashboard">
-                    <img 
-                      className="h-8 w-8 rounded-full border border-gray-200" 
+                    <Image 
+                      className="rounded-full border border-gray-200" 
                       src={user.image} 
                       alt="" 
+                      width={32}
+                      height={32}
+                      unoptimized
                     />
                    </Link>
                 ) : (

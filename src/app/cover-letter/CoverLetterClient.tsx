@@ -57,7 +57,7 @@ export function CoverLetterClient() {
             `Experience:`,
             parsed.experience
               ?.map(
-                (exp: any) =>
+                (exp: {role: string; company: string; duration: string; description?: string[]}) =>
                   `- ${exp.role} at ${exp.company} (${
                     exp.duration
                   }): ${exp.description?.join(" ")}`
@@ -65,11 +65,11 @@ export function CoverLetterClient() {
               .join("\n"),
             `Education:`,
             parsed.education
-              ?.map((edu: any) => `- ${edu.degree} at ${edu.school}`)
+              ?.map((edu: {degree: string; school: string}) => `- ${edu.degree} at ${edu.school}`)
               .join("\n"),
           ].join("\n\n");
         }
-      } catch (e) {
+      } catch {
         // if not json, use as is
       }
       setFormData((prev) => ({ ...prev, resumeText: content }));

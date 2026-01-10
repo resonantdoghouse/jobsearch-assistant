@@ -18,7 +18,7 @@ const MOCK_PROBLEMS = [
   }
 ];
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     try {
         await dbConnect();
@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
         console.warn("DB Connection failed, returning mock data:", dbError);
         return NextResponse.json({ success: true, problems: MOCK_PROBLEMS });
     }
-  } catch (error) {
+  } catch {
     return NextResponse.json(
       { success: false, error: "Failed to fetch problems" },
       { status: 500 }
@@ -54,7 +54,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
      console.error("Error creating problem:", error);
      const err = error as Error;
-     if (err.name === 'MongoServerError' && (err as any).code === 11000) {
+     if (err.name === 'MongoServerError' && (err as { code?: number }).code === 11000) {
         return NextResponse.json(
             { success: false, error: "Problem with this slug already exists" },
             { status: 409 }

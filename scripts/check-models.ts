@@ -25,10 +25,11 @@ async function listModels() {
      // I'll try to fetch a dummy generation with 'gemini-1.5-flash-8b' or similar if flash fails.
      console.log("Testing model: gemini-1.5-flash");
      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-     const result = await model.generateContent("Test");
+     await model.generateContent("Test");
      console.log("Success with gemini-1.5-flash");
-  } catch (e: any) {
-    console.error("Error with gemini-1.5-flash:", e.message);
+  } catch (e: unknown) {
+    const errorMessage = e instanceof Error ? e.message : String(e);
+    console.error("Error with gemini-1.5-flash:", errorMessage);
     
     // Fallback: try querying specific models if I can't list
     const candidates = ["gemini-1.5-flash-latest", "gemini-1.5-flash-001", "gemini-1.0-pro", "gemini-pro"];
@@ -39,8 +40,9 @@ async function listModels() {
             await model.generateContent("Test");
             console.log(`Success with ${name}!`);
             break;
-        } catch (err: any) {
-            console.log(`Failed ${name}: ${err.message.split(':')[0]}`);
+        } catch (err: unknown) {
+            const errLimit = err instanceof Error ? err.message.split(':')[0] : String(err);
+            console.log(`Failed ${name}: ${errLimit}`);
         }
     }
   }

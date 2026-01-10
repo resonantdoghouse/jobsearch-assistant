@@ -8,7 +8,7 @@ import { ResumePreview } from "@/components/ResumePreview";
 export function ResumeReviewClient() {
   const [analysis, setAnalysis] = useState<string>("");
   const [extractedText, setExtractedText] = useState<string>("");
-  const [rewrittenResume, setRewrittenResume] = useState<any>(null);
+  const [rewrittenResume, setRewrittenResume] = useState<string | null>(null);
   const [isRewriting, setIsRewriting] = useState(false);
 
   const handleAnalysisComplete = (analysis: string, text: string) => {

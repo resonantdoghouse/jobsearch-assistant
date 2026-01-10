@@ -63,7 +63,7 @@ export async function POST(req: Request) {
   }
 }
 
-export async function GET(req: Request) {
+export async function GET() {
     try {
         const session = await auth();
         if (!session || !session.user || !session.user.email) {
@@ -83,7 +83,7 @@ export async function GET(req: Request) {
 
         return NextResponse.json({ resumes }, { status: 200 });
 
-    } catch (error) {
+    } catch (error: unknown) {
         console.error("Error fetching resumes:", error);
         return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
     }

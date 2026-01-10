@@ -4,6 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
+import Image from "next/image";
+
 interface DashboardItem {
   _id: string;
   title?: string; // For resumes
@@ -13,8 +15,14 @@ interface DashboardItem {
   createdAt: string;
 }
 
+interface User {
+  name?: string | null;
+  email?: string | null;
+  image?: string | null;
+}
+
 interface DashboardProps {
-  user: any;
+  user: User;
   resumes: DashboardItem[];
   analyses: DashboardItem[];
   coverLetters: DashboardItem[];
@@ -67,10 +75,13 @@ export function DashboardClient({
       <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 min-h-[300px] mb-8">
         <div className="flex items-center gap-4 mb-6">
           {user.image && (
-            <img
+            <Image
               src={user.image}
               alt={user.name || "User"}
-              className="w-16 h-16 rounded-full"
+              width={64}
+              height={64}
+              className="rounded-full"
+              unoptimized
             />
           )}
           <div>

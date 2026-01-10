@@ -38,11 +38,11 @@ export async function POST(req: NextRequest) {
     const coverLetter = response.text();
 
     return NextResponse.json({ coverLetter });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Cover letter generation error:", error);
-    const status = error.status || 500;
+    const status = (error as { status?: number }).status || 500;
     return NextResponse.json(
-      { error: error.message || "Failed to generate cover letter" },
+      { error: (error as Error).message || "Failed to generate cover letter" },
       { status }
     );
   }

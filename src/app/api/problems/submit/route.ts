@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/db/connect";
 import Submission from "@/lib/db/models/Submission";
-import { auth } from "@/auth"; // Assuming auth helper exists or similar
+// import { auth } from "@/auth"; // Assuming auth helper exists or similar
 
 // TODO: Implement proper auth check. 
 // For now, if we don't have auth helper, we'll need to mock or find how existing code handles it.
