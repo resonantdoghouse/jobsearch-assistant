@@ -161,7 +161,25 @@ export async function GET(
              // Fallback to mock if not found in real DB (or if connection failed)
              throw new Error("Not found");
         }
-         return NextResponse.json({ success: true, problem });
+
+        // Merge with mock data if specific fields are missing in the DB record
+        // This ensures old DB records still get the new features
+        const problemObj = problem.toObject ? problem.toObject() : problem;
+        const mock = MOCK_PROBLEMS_DETAILS[slug];
+        
+        if (mock) {
+            if (!problemObj.hints || problemObj.hints.length === 0) {
+                problemObj.hints = mock.hints;
+            }
+            if (!problemObj.resources || problemObj.resources.length === 0) {
+                problemObj.resources = mock.resources;
+            }
+            if (!problemObj.solution) {
+                problemObj.solution = mock.solution;
+            }
+        }
+
+         return NextResponse.json({ success: true, problem: problemObj });
     } catch (dbError) {
          console.warn("DB lookup failed or not found, trying mock:", dbError);
          const mock = MOCK_PROBLEMS_DETAILS[slug];

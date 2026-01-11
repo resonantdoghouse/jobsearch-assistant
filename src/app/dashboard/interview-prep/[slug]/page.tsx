@@ -137,9 +137,9 @@ export default function ProblemPage() {
   if (!problem) return <div className="p-8">Loading...</div>;
 
   return (
-    <div className="flex h-screen flex-col md:flex-row">
+    <div className="flex flex-col md:flex-row h-[calc(100vh-4rem)] overflow-hidden">
       {/* Left: Problem Description */}
-      <div className="w-full md:w-1/3 p-6 overflow-y-auto border-r bg-gray-50">
+      <div className="w-full md:w-1/3 p-6 overflow-y-auto border-r bg-gray-50 h-full scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
         <h1 className="text-2xl font-bold mb-4">{problem.title}</h1>
         <div className="prose prose-sm max-w-none mb-8">
           <ReactMarkdown>{problem.description}</ReactMarkdown>
@@ -233,10 +233,10 @@ export default function ProblemPage() {
       </div>
 
       {/* Right: Editor */}
-      <div className="w-full md:w-2/3 flex flex-col">
-        <div className="flex-1">
+      <div className="w-full md:w-2/3 flex flex-col h-full overflow-hidden">
+        <div className="flex-1 overflow-hidden">
           <Editor
-            height="70vh"
+            height="100%"
             defaultLanguage="javascript"
             value={code}
             onChange={(val) => setCode(val || "")}
@@ -249,7 +249,7 @@ export default function ProblemPage() {
         </div>
 
         {/* Output & Controls */}
-        <div className="h-[30vh] bg-gray-900 text-white p-4 overflow-y-auto border-t border-gray-700">
+        <div className="h-[30vh] bg-gray-900 text-white p-4 overflow-y-auto border-t border-gray-700 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
           <div className="flex justify-between items-center mb-2">
             <h3 className="font-semibold text-gray-400">Console</h3>
             <div className="space-x-2">
