@@ -11,6 +11,18 @@ export interface IProblemTestCase {
   output: string;
 }
 
+export interface IProblemResource {
+  title: string;
+  url: string;
+  type?: string;
+}
+
+export interface IProblemSolution {
+  title: string;
+  explanation: string;
+  code: Record<string, string>;
+}
+
 export interface IProblem extends mongoose.Document {
   title: string;
   slug: string;
@@ -20,6 +32,9 @@ export interface IProblem extends mongoose.Document {
   constraints: string[];
   starterCode: Record<string, string>; // language -> code
   testCases: IProblemTestCase[];
+  hints: string[];
+  resources: IProblemResource[];
+  solution?: IProblemSolution;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -33,6 +48,18 @@ const ProblemExampleSchema = new Schema<IProblemExample>({
 const ProblemTestCaseSchema = new Schema<IProblemTestCase>({
   input: { type: String, required: true },
   output: { type: String, required: true },
+});
+
+const ProblemResourceSchema = new Schema<IProblemResource>({
+  title: { type: String, required: true },
+  url: { type: String, required: true },
+  type: { type: String },
+});
+
+const ProblemSolutionSchema = new Schema<IProblemSolution>({
+  title: { type: String, required: true },
+  explanation: { type: String, required: true },
+  code: { type: Map, of: String, required: true },
 });
 
 const ProblemSchema = new Schema<IProblem>(
@@ -49,6 +76,9 @@ const ProblemSchema = new Schema<IProblem>(
     constraints: [{ type: String }],
     starterCode: { type: Map, of: String },
     testCases: [ProblemTestCaseSchema],
+    hints: [{ type: String }],
+    resources: [ProblemResourceSchema],
+    solution: ProblemSolutionSchema,
   },
   { timestamps: true }
 );
