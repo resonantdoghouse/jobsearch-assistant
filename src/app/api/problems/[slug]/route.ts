@@ -47,7 +47,7 @@ Explanation: Because nums[0] + nums[1] == 9, we return [0, 1].
  * @param {number} target
  * @return {number[]}
  */
-var twoSum = function(nums, target) {
+const twoSum = function(nums, target) {
     
 };`
     },
@@ -81,11 +81,11 @@ We can solve this problem in O(n) time using a hash map.
 2. Iterate through the array.
 3. For each element \`nums[i]\`, calculate \`complement = target - nums[i]\`.
 4. Check if \`complement\` exists in the hash map.
-   - If it does, we found the pair! Return \`[map[complement], i]\`.
+   - If it does, we found the pair! Return \`[map.get(complement), i]\`.
    - If not, add \`nums[i]\` to the map with its index \`i\`.
 `,
       code: {
-        javascript: `var twoSum = function(nums, target) {
+        javascript: `const twoSum = function(nums, target) {
     const map = new Map();
     for (let i = 0; i < nums.length; i++) {
         const complement = target - nums[i];
@@ -109,7 +109,7 @@ We can solve this problem in O(n) time using a hash map.
  * @param {number} x
  * @return {boolean}
  */
-var isPalindrome = function(x) {
+const isPalindrome = function(x) {
     
 };`
     },
@@ -130,7 +130,7 @@ var isPalindrome = function(x) {
 3. Compare the first half with the reverted second half.
         `,
         code: {
-            javascript: `var isPalindrome = function(x) {
+            javascript: `const isPalindrome = function(x) {
     if (x < 0 || (x % 10 === 0 && x !== 0)) {
         return false;
     }

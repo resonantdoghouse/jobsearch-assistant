@@ -88,8 +88,10 @@ export default function ProblemPage() {
         // So `input` is a string suitable for function arguments.
 
         // We need to find the function name.
-        // Heuristic: match `var (\w+) =` or `function (\w+)`
-        const match = code.match(/var\s+(\w+)\s*=|function\s+(\w+)\s*\(/);
+        // Heuristic: match `var (\w+) =` or `function (\w+)` or `const (\w+) =` or `let (\w+) =`
+        const match = code.match(
+          /(?:var|const|let)\s+(\w+)\s*=|function\s+(\w+)\s*\(/
+        );
         const funcName = match ? match[1] || match[2] : null;
 
         if (!funcName) {
