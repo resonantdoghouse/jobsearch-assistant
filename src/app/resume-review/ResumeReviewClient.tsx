@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Toast, ToastType } from "@/components/Toast";
 import { ResumeUploader } from "@/components/ResumeUploader";
 import { ReviewResult } from "@/components/ReviewResult";
 import { ResumePreview } from "@/components/ResumePreview";
@@ -13,6 +14,10 @@ export function ResumeReviewClient() {
 
   const [refinementInstruction, setRefinementInstruction] = useState("");
   const [isRefining, setIsRefining] = useState(false);
+  const [toast, setToast] = useState<{
+    message: string;
+    type: ToastType;
+  } | null>(null);
 
   const handleAnalysisComplete = (analysis: string, text: string) => {
     setAnalysis(analysis);
@@ -33,9 +38,10 @@ export function ResumeReviewClient() {
       const data = await res.json();
       setRewrittenResume(data.rewrittenContent);
       setRefinementInstruction("");
+      setToast({ message: "Resume generated successfully!", type: "success" });
     } catch (error) {
       console.error("Rewrite failed", error);
-      alert("Failed to rewrite resume");
+      setToast({ message: "Failed to generate resume", type: "error" });
     } finally {
       setIsRewriting(false);
     }
@@ -57,19 +63,30 @@ export function ResumeReviewClient() {
       if (data.rewrittenContent) {
         setRewrittenResume(data.rewrittenContent);
         setRefinementInstruction("");
+        setToast({ message: "Resume updated successfully!", type: "success" });
       } else {
-        alert("Failed to update resume. Please try again.");
+        setToast({
+          message: "Failed to update resume. Please try again.",
+          type: "error",
+        });
       }
     } catch (error) {
       console.error("Refinement failed", error);
-      alert("Failed to update resume");
+      setToast({ message: "Failed to update resume", type: "error" });
     } finally {
       setIsRefining(false);
     }
   };
 
   return (
-    <div className="max-w-4xl mx-auto pb-12">
+    <div className="max-w-4xl mx-auto pb-12 relative">
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Resume Review</h1>
         <p className="text-gray-600">
@@ -114,34 +131,27 @@ export function ResumeReviewClient() {
               something (e.g., "Add React Native to skills", "Fix the date on my
               last job"), describe it below and we'll update it for you.
             </p>
-            <div className="flex gap-4">
-              <input
-                type="text"
+            <div className="flex flex-col gap-4">
+              <textarea
                 value={refinementInstruction}
                 onChange={(e) => setRefinementInstruction(e.target.value)}
                 placeholder="E.g., Change my email to alex@example.com"
-                className="flex-1 border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-4 py-2"
-                onKeyDown={(e) => {
-                  if (
-                    e.key === "Enter" &&
-                    !isRefining &&
-                    refinementInstruction.trim()
-                  ) {
-                    handleRefinement();
-                  }
-                }}
+                className="w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-4 py-3 min-h-[100px] resize-y"
+                disabled={isRefining}
               />
-              <button
-                onClick={handleRefinement}
-                disabled={isRefining || !refinementInstruction.trim()}
-                className={`bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-medium transition-colors whitespace-nowrap ${
-                  isRefining || !refinementInstruction.trim()
-                    ? "opacity-50 cursor-not-allowed"
-                    : ""
-                }`}
-              >
-                {isRefining ? "Updating..." : "Update Resume"}
-              </button>
+              <div className="flex justify-end">
+                <button
+                  onClick={handleRefinement}
+                  disabled={isRefining || !refinementInstruction.trim()}
+                  className={`bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg font-medium transition-colors whitespace-nowrap ${
+                    isRefining || !refinementInstruction.trim()
+                      ? "opacity-50 cursor-not-allowed"
+                      : ""
+                  }`}
+                >
+                  {isRefining ? "Updating..." : "Update Resume"}
+                </button>
+              </div>
             </div>
           </div>
         </div>
