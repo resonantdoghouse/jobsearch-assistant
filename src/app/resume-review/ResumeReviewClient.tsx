@@ -119,7 +119,11 @@ export function ResumeReviewClient() {
 
       {rewrittenResume && (
         <div className="mt-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <ResumePreview content={rewrittenResume} analysis={analysis} />
+          <ResumePreview
+            content={rewrittenResume}
+            analysis={analysis}
+            isEditable={true}
+          />
 
           {/* Refinement Section */}
           <div className="mt-8 bg-indigo-50 border border-indigo-100 p-6 rounded-xl">

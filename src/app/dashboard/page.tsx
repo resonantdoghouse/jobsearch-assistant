@@ -7,6 +7,8 @@ import ResumeAnalysis from "@/lib/db/models/ResumeAnalysis";
 import CoverLetter from "@/lib/db/models/CoverLetter";
 import { DashboardClient } from "./DashboardClient";
 
+export const dynamic = "force-dynamic";
+
 export default async function DashboardPage() {
   const session = await auth();
 
@@ -26,7 +28,7 @@ export default async function DashboardPage() {
     (await import("mongoose")).models.User ||
     (await import("mongoose")).model(
       "User",
-      new (await import("mongoose")).Schema({})
+      new (await import("mongoose")).Schema({}),
     );
   const user = await User.findOne({ email: session.user.email });
 
@@ -46,6 +48,11 @@ export default async function DashboardPage() {
     ResumeAnalysis.find({ userId: user._id }).sort({ createdAt: -1 }).lean(),
     CoverLetter.find({ userId: user._id }).sort({ createdAt: -1 }).lean(),
   ]);
+
+  console.log(
+    "Debug Resumes Starred Status:",
+    resumes.map((r) => ({ id: r._id, starred: r.isStarred })),
+  );
 
   return (
     <div>

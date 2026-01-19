@@ -11,6 +11,7 @@ export interface IResume extends mongoose.Document {
   title: string;
   latestContent: string;
   versions: IResumeVersion[];
+  isStarred: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -26,6 +27,7 @@ const ResumeSchema = new Schema<IResume>({
   title: { type: String, required: true },
   latestContent: { type: String },
   versions: [ResumeVersionSchema],
+  isStarred: { type: Boolean, default: false },
 }, { timestamps: true });
 
 // Check if model exists to avoid recompilation errors in dev

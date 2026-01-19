@@ -1,0 +1,86 @@
+"use client";
+
+import { useState } from "react";
+
+interface CoverLetterData {
+  _id: string;
+  jobDescription?: string;
+  content: string;
+  createdAt: string;
+}
+
+export function CoverLetterEditor({
+  coverLetter,
+}: {
+  coverLetter: CoverLetterData;
+}) {
+  const [content, setContent] = useState(coverLetter.content);
+  const [isSaving, setIsSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState<string | null>(null);
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      const res = await fetch(`/api/cover-letters/${coverLetter._id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content }),
+      });
+
+      if (res.ok) {
+        setLastSaved(new Date().toLocaleTimeString());
+      } else {
+        alert("Failed to save cover letter");
+      }
+    } catch (error) {
+      console.error("Save failed", error);
+      alert("An error occurred while saving");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(content);
+    alert("Copied to clipboard!");
+  };
+
+  return (
+    <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6 flex flex-col h-[calc(100vh-200px)] min-h-[600px]">
+      <div className="flex justify-between items-center mb-4">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">
+            Edit Cover Letter
+          </h2>
+          {lastSaved && (
+            <span className="text-sm text-gray-500">
+              Last saved: {lastSaved}
+            </span>
+          )}
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={handleCopy}
+            className="px-4 py-2 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg font-medium transition-colors"
+          >
+            Copy Text
+          </button>
+          <button
+            onClick={handleSave}
+            disabled={isSaving}
+            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors disabled:opacity-50"
+          >
+            {isSaving ? "Saving..." : "Save Changes"}
+          </button>
+        </div>
+      </div>
+
+      <textarea
+        value={content}
+        onChange={(e) => setContent(e.target.value)}
+        className="flex-1 w-full p-4 border border-gray-200 rounded-lg resize-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent font-sans text-base leading-relaxed"
+        placeholder="Start writing your cover letter..."
+      />
+    </div>
+  );
+}
