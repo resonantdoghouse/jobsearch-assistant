@@ -140,7 +140,7 @@ export function ResumeReviewClient() {
                 value={refinementInstruction}
                 onChange={(e) => setRefinementInstruction(e.target.value)}
                 placeholder="E.g., Change my email to alex@example.com"
-                className="w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 px-4 py-3 min-h-[100px] resize-y"
+                className="w-full border-gray-300 rounded-lg shadow-sm bg-white focus:ring-indigo-500 focus:border-indigo-500 px-4 py-3 min-h-[100px] resize-y"
                 disabled={isRefining}
               />
               <div className="flex justify-end">

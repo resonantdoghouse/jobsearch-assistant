@@ -52,20 +52,28 @@ export function CoverLetterClient() {
             `Name: ${parsed.fullName}`,
             `Summary: ${parsed.summary}`,
             `Skills: ${parsed.skills?.languages?.join(
-              ", "
+              ", ",
             )} ${parsed.skills?.frameworks?.join(", ")}`,
             `Experience:`,
             parsed.experience
               ?.map(
-                (exp: {role: string; company: string; duration: string; description?: string[]}) =>
+                (exp: {
+                  role: string;
+                  company: string;
+                  duration: string;
+                  description?: string[];
+                }) =>
                   `- ${exp.role} at ${exp.company} (${
                     exp.duration
-                  }): ${exp.description?.join(" ")}`
+                  }): ${exp.description?.join(" ")}`,
               )
               .join("\n"),
             `Education:`,
             parsed.education
-              ?.map((edu: {degree: string; school: string}) => `- ${edu.degree} at ${edu.school}`)
+              ?.map(
+                (edu: { degree: string; school: string }) =>
+                  `- ${edu.degree} at ${edu.school}`,
+              )
               .join("\n"),
           ].join("\n\n");
         }
@@ -124,7 +132,7 @@ export function CoverLetterClient() {
   };
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
@@ -151,7 +159,7 @@ export function CoverLetterClient() {
             <input
               name="jobTitle"
               required
-              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-md border border-gray-300 px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               value={formData.jobTitle}
               onChange={handleChange}
             />
@@ -163,7 +171,7 @@ export function CoverLetterClient() {
             <input
               name="company"
               required
-              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-md border border-gray-300 px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               value={formData.company}
               onChange={handleChange}
             />
@@ -175,7 +183,7 @@ export function CoverLetterClient() {
             <textarea
               name="description"
               rows={4}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-md border border-gray-300 px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               value={formData.description}
               onChange={handleChange}
             />
@@ -207,7 +215,7 @@ export function CoverLetterClient() {
               required
               rows={6}
               placeholder="Paste your resume text here..."
-              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full rounded-md border border-gray-300 px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               value={formData.resumeText}
               onChange={handleChange}
             />
@@ -240,7 +248,7 @@ export function CoverLetterClient() {
               {generatedLetter}
             </div>
           ) : (
-            <p className="text-gray-400 italic text-sm">
+            <p className="text-gray-500 italic text-sm">
               Your cover letter will appear here...
             </p>
           )}

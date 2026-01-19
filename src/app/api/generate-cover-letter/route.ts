@@ -31,6 +31,7 @@ export async function POST(req: NextRequest) {
       4. Express genuine passion and interest in the company and role.
       5. Do not simply summarize the resume; connect the dots between my skills and the job needs.
       6. Keep it under 300 words.
+      7. CRITICAL: Use *only* the facts and experiences provided in "My Resume/Background". Do NOT invent or make up any projects, skills, companies, or experiences that are not explicitly stated in the provided background. If the job description asks for a skill I don't have, do NOT say I have it. Focus on the transferable skills I DOES have.
     `;
 
     const result = await model.generateContent(prompt);

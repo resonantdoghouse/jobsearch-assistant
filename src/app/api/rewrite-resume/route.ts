@@ -34,6 +34,10 @@ export async function POST(req: NextRequest) {
         Update the resume JSON based strictly on the Refinement Instruction. 
         Keep all other information exactly the same unless the instruction implies changing it or if it requires correcting a clear error associated with the instruction.
         
+        CRITICAL RULES:
+        1. Do NOT invent new projects, skills, or experiences that are not in the Current Resume or explicitly requested in the Refinement Instruction.
+        2. Maintain the truthfulness of the original document. Only rephrase or restructure existing facts.
+        
         Output strictly valid JSON matching the same schema as the input.
         Do not include any text outside the JSON block.
       `;
@@ -58,6 +62,12 @@ export async function POST(req: NextRequest) {
           analysis ||
           "General improvements for clarity, impact, and ATS optimization."
         }
+        
+        CRITICAL RULES:
+        1. Use *only* the information provided in the "Original Resume Text".
+        2. Do NOT hallucinate or invent any new projects, skills, employment history, or degrees.
+        3. If you rephrase bullet points, ensure the core facts (metrics, technologies used) remain true to the source.
+        4. If the Analysis/Feedback asks to "add metrics", only add placeholders if the data isn't there, or better yet, just improve the verb strength without inventing numbers.
         
         Output strictly valid JSON matching this schema:
         {
@@ -89,6 +99,7 @@ export async function POST(req: NextRequest) {
                   "degree": "string",
                   "school": "string",
                   "year": "string"
+                  // Do NOT invent a GPA if not provided
               }
           ],
           "projects": [

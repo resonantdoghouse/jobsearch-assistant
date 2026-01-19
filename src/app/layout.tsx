@@ -20,9 +20,17 @@ export default async function RootLayout({
 
   return (
     <html lang="en">
-      <body className={inter.className + " bg-gray-50 min-h-screen text-gray-900"}>
+      <body
+        className={
+          inter.className +
+          " min-h-screen antialiased selection:bg-indigo-100 selection:text-indigo-900"
+        }
+      >
+        {/* Subtle background flair */}
+        <div className="fixed inset-0 -z-10 h-full w-full bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)] opacity-50 pointer-events-none"></div>
+
         <Navbar user={session?.user} />
-        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 relative">
           {children}
         </main>
       </body>
