@@ -36,7 +36,12 @@ export default async function ResumeViewPage({
     _id: resume._id.toString(),
     title: resume.title,
     latestContent: resume.latestContent,
-    versions: resume.versions,
+    versions:
+      resume.versions?.map((v: any) => ({
+        ...v,
+        _id: v._id?.toString(),
+        createdAt: v.createdAt?.toISOString() || new Date().toISOString(),
+      })) || [],
     updatedAt: resume.updatedAt.toString(),
   };
 
