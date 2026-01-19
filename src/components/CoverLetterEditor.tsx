@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+import { downloadPDF, downloadDOCX, downloadRTF } from "@/lib/utils/download";
+
 interface CoverLetterData {
   _id: string;
   jobDescription?: string;
@@ -40,6 +42,18 @@ export function CoverLetterEditor({
     }
   };
 
+  const handleDownload = (format: "pdf" | "docx" | "rtf") => {
+    const filename = `Cover_Letter_${(coverLetter.jobDescription || "Saved").replace(/[^a-z0-9]/gi, "_")}`;
+
+    if (format === "pdf") {
+      downloadPDF(content, filename);
+    } else if (format === "docx") {
+      downloadDOCX(content, filename);
+    } else if (format === "rtf") {
+      downloadRTF(content, filename);
+    }
+  };
+
   const handleCopy = async () => {
     await navigator.clipboard.writeText(content);
     alert("Copied to clipboard!");
@@ -58,7 +72,30 @@ export function CoverLetterEditor({
             </span>
           )}
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center">
+          <div className="flex border rounded overflow-hidden bg-white">
+            <button
+              onClick={() => handleDownload("pdf")}
+              className="text-xs px-3 py-2 hover:bg-gray-50 border-r text-gray-700 font-medium"
+              title="Download as PDF"
+            >
+              PDF
+            </button>
+            <button
+              onClick={() => handleDownload("docx")}
+              className="text-xs px-3 py-2 hover:bg-gray-50 border-r text-gray-700 font-medium"
+              title="Download as Word DOCX"
+            >
+              DOCX
+            </button>
+            <button
+              onClick={() => handleDownload("rtf")}
+              className="text-xs px-3 py-2 hover:bg-gray-50 text-gray-700 font-medium"
+              title="Download as RTF"
+            >
+              RTF
+            </button>
+          </div>
           <button
             onClick={handleCopy}
             className="px-4 py-2 text-indigo-600 bg-indigo-50 hover:bg-indigo-100 rounded-lg font-medium transition-colors"

@@ -25,13 +25,15 @@ export async function POST(req: NextRequest) {
       ${resumeText}
       
       Guidelines:
-      1. Be concise and to the point. Avoid fluff.
-      2. Do NOT sound like an AI. Use natural, professional, yet conversational language.
-      3. Focus heavily on how I can bring specific value to ${company} based on my experience.
-      4. Express genuine passion and interest in the company and role.
-      5. Do not simply summarize the resume; connect the dots between my skills and the job needs.
-      6. Keep it under 300 words.
-      7. CRITICAL: Use *only* the facts and experiences provided in "My Resume/Background". Do NOT invent or make up any projects, skills, companies, or experiences that are not explicitly stated in the provided background. If the job description asks for a skill I don't have, do NOT say I have it. Focus on the transferable skills I DOES have.
+      1. **Tone**: Use a direct, conversational, and professional tone. Write as a human, not a machine.
+      2. **Forbidden**: Do NOT use em-dashes (—). Do NOT use buzzwords like "delve", "testament", "tapestry", "landscape", "pivotal", "underscores", "rich history", "dynamic", "poster child".
+      3. **Structure**: Vary your sentence length. Use short, punchy sentences. Avoid starting every paragraph with "I am writing to...".
+      4. **Content**: Focus heavily on *value*. How can I solve their problems? Connect my specific skills to their specific needs.
+      5. **Authenticity**: Express genuine interest.
+      6. **Length**: Keep it under 250 words.
+      7. **Factuality**: Use *only* the facts from "My Resume/Background". Do not hallucinate experiences.
+      8. **Formatting**: Return plain text with paragraph breaks. No "Subject:" lines or placeholder contact info at the top unless explicitly asked. Just the body of the letter.
+
     `;
 
     const result = await model.generateContent(prompt);

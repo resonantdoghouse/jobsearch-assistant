@@ -2,11 +2,14 @@
 
 import { useState, useEffect } from "react";
 
+import { downloadPDF, downloadDOCX, downloadRTF } from "@/lib/utils/download";
+
 interface Resume {
   _id: string;
   title: string;
   latestContent: string;
   updatedAt: string;
+  isStarred?: boolean;
 }
 
 export function CoverLetterClient() {
@@ -27,7 +30,19 @@ export function CoverLetterClient() {
         const res = await fetch("/api/resumes");
         if (res.ok) {
           const data = await res.json();
-          setSavedResumes(data.resumes || []);
+          // Sort resumes: starred first, then by date
+          const sortedResumes = (data.resumes || []).sort(
+            (a: Resume, b: Resume) => {
+              if (a.isStarred === b.isStarred) {
+                return (
+                  new Date(b.updatedAt).getTime() -
+                  new Date(a.updatedAt).getTime()
+                );
+              }
+              return a.isStarred ? -1 : 1;
+            },
+          );
+          setSavedResumes(sortedResumes);
         }
       } catch (error) {
         console.error("Failed to fetch resumes", error);
@@ -131,6 +146,19 @@ export function CoverLetterClient() {
     }
   };
 
+  const handleDownload = (format: "pdf" | "docx" | "rtf") => {
+    if (!generatedLetter) return;
+    const filename = `Cover_Letter_${formData.company.replace(/[^a-z0-9]/gi, "_") || "Generated"}`;
+
+    if (format === "pdf") {
+      downloadPDF(generatedLetter, filename);
+    } else if (format === "docx") {
+      downloadDOCX(generatedLetter, filename);
+    } else if (format === "rtf") {
+      downloadRTF(generatedLetter, filename);
+    }
+  };
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
@@ -204,6 +232,7 @@ export function CoverLetterClient() {
                   </option>
                   {savedResumes.map((r) => (
                     <option key={r._id} value={r._id}>
+                      {r.isStarred ? "★ " : ""}
                       {r.title} ({new Date(r.updatedAt).toLocaleDateString()})
                     </option>
                   ))}
@@ -234,13 +263,38 @@ export function CoverLetterClient() {
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-lg font-semibold">Generated Letter</h2>
             {generatedLetter && (
-              <button
-                onClick={handleSave}
-                disabled={isSaving}
-                className="text-sm bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700 disabled:opacity-50"
-              >
-                {isSaving ? "Saving..." : "Save to Dashboard"}
-              </button>
+              <div className="flex gap-2 items-center">
+                <div className="flex border rounded overflow-hidden">
+                  <button
+                    onClick={() => handleDownload("pdf")}
+                    className="text-xs bg-gray-100 px-2 py-1 hover:bg-gray-200 border-r"
+                    title="Download as PDF"
+                  >
+                    PDF
+                  </button>
+                  <button
+                    onClick={() => handleDownload("docx")}
+                    className="text-xs bg-gray-100 px-2 py-1 hover:bg-gray-200 border-r"
+                    title="Download as Word DOCX"
+                  >
+                    DOCX
+                  </button>
+                  <button
+                    onClick={() => handleDownload("rtf")}
+                    className="text-xs bg-gray-100 px-2 py-1 hover:bg-gray-200"
+                    title="Download as RTF"
+                  >
+                    RTF
+                  </button>
+                </div>
+                <button
+                  onClick={handleSave}
+                  disabled={isSaving}
+                  className="text-sm bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700 disabled:opacity-50"
+                >
+                  {isSaving ? "Saving..." : "Save to Dashboard"}
+                </button>
+              </div>
             )}
           </div>
           {generatedLetter ? (

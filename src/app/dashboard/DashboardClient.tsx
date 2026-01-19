@@ -279,7 +279,7 @@ export function DashboardClient({
                   key={resume._id}
                   className="flex justify-between items-center p-3 bg-gray-50 rounded border border-gray-100 hover:border-blue-200 transition-colors"
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
                     <button
                       onClick={() =>
                         handleToggleStar(
@@ -313,8 +313,11 @@ export function DashboardClient({
                         <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                       </svg>
                     </button>
-                    <div>
-                      <div className="font-semibold text-gray-900">
+                    <div className="min-w-0 flex-1">
+                      <div
+                        className="font-semibold text-gray-900 truncate"
+                        title={resume.title}
+                      >
                         {resume.title || "Untitled Resume"}
                       </div>
                       <div className="text-xs text-gray-500">
@@ -397,7 +400,7 @@ export function DashboardClient({
                   key={analysis._id}
                   className="flex justify-between items-center p-3 bg-gray-50 rounded border border-gray-100 hover:border-purple-200 transition-colors"
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
                     <button
                       onClick={() =>
                         handleToggleStar(
@@ -431,8 +434,11 @@ export function DashboardClient({
                         <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                       </svg>
                     </button>
-                    <div>
-                      <div className="font-semibold text-gray-900">
+                    <div className="min-w-0 flex-1">
+                      <div
+                        className="font-semibold text-gray-900 truncate"
+                        title={analysis.fileName}
+                      >
                         {analysis.fileName || "Unknown File"}
                       </div>
                       <div className="text-xs text-gray-500">
@@ -519,7 +525,7 @@ export function DashboardClient({
                   key={cl._id}
                   className="flex justify-between items-center p-3 bg-gray-50 rounded border border-gray-100 hover:border-green-200 transition-colors"
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
                     <button
                       onClick={() =>
                         handleToggleStar("cover-letter", cl._id, !!cl.isStarred)
@@ -549,10 +555,12 @@ export function DashboardClient({
                         <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
                       </svg>
                     </button>
-                    <div>
-                      <div className="font-semibold text-gray-900 truncate max-w-md">
-                        {cl.jobDescription?.substring(0, 50) || "Cover Letter"}
-                        ...
+                    <div className="min-w-0 flex-1">
+                      <div
+                        className="font-semibold text-gray-900 truncate"
+                        title={cl.jobDescription}
+                      >
+                        {cl.jobDescription || "Cover Letter"}
                       </div>
                       <div className="text-xs text-gray-500">
                         {formatDate(cl.createdAt)}
