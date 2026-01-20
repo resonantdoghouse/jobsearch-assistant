@@ -96,22 +96,22 @@ export function ResumeEditor({ resume }: { resume: any }) {
                 <label className="block text-sm font-medium text-purple-900 mb-2">
                     How should Gemini improve your resume?
                 </label>
-                <div className="flex gap-2">
-                    <input
-                        type="text"
+                <div className="flex flex-col gap-3">
+                    <textarea
                         value={userInstructions}
                         onChange={(e) => setUserInstructions(e.target.value)}
                         placeholder="e.g. 'Change all C++ references to React' or 'Make the summary more professional'"
-                        className="flex-1 border-purple-200 rounded-lg focus:ring-purple-500 focus:border-purple-500"
-                        onKeyDown={(e) => e.key === "Enter" && performAiEdit()}
+                        className="w-full border-purple-200 rounded-lg focus:ring-purple-500 focus:border-purple-500 min-h-[100px] p-3"
                     />
-                    <button
-                        onClick={performAiEdit}
-                        disabled={isProcessing || !userInstructions.trim()}
-                        className="bg-purple-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                    >
-                        {isProcessing ? "Processing..." : "Generate"}
-                    </button>
+                    <div className="flex justify-end">
+                        <button
+                            onClick={performAiEdit}
+                            disabled={isProcessing || !userInstructions.trim()}
+                            className="bg-purple-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        >
+                            {isProcessing ? "Processing..." : "Generate"}
+                        </button>
+                    </div>
                 </div>
                 <p className="text-xs text-purple-600 mt-2">
                     * AI will attempt to modify your resume based on your instructions. Please review changes before saving.
