@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import { useReactToPrint } from "react-to-print";
 import ReactMarkdown from "react-markdown";
 
-interface ResumeData {
+export interface ResumeData {
   fullName: string;
   contactInfo: {
     email: string;
