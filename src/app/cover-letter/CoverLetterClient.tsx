@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 
 import { downloadPDF, downloadDOCX, downloadRTF } from "@/lib/utils/download";
+import { useToast } from "@/components/ToastContext";
 
 interface Resume {
   _id: string;
@@ -23,6 +24,7 @@ export function CoverLetterClient() {
   const [loading, setLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [savedResumes, setSavedResumes] = useState<Resume[]>([]);
+  const { success, error } = useToast();
 
   // New state for Application Questions
   const [activeTab, setActiveTab] = useState<"cover-letter" | "questions">(
@@ -118,9 +120,9 @@ export function CoverLetterClient() {
       });
       const data = await res.json();
       setGeneratedLetter(data.coverLetter);
-    } catch (error) {
-      console.error(error);
-      alert("Failed to generate cover letter");
+    } catch (err) {
+      console.error(err);
+      error("Failed to generate cover letter");
     } finally {
       setLoading(false);
     }
@@ -141,14 +143,14 @@ export function CoverLetterClient() {
         }),
       });
       if (res.ok) {
-        alert("Cover letter saved to dashboard!");
+        success("Cover letter saved to dashboard!");
       } else {
         const data = await res.json();
-        alert(data.error || "Failed to save cover letter");
+        error(data.error || "Failed to save cover letter");
       }
-    } catch (error) {
-      console.error("Failed to save", error);
-      alert("Failed to save cover letter");
+    } catch (err) {
+      console.error("Failed to save", err);
+      error("Failed to save cover letter");
     } finally {
       setIsSaving(false);
     }
@@ -184,9 +186,9 @@ export function CoverLetterClient() {
       });
       const data = await res.json();
       setGeneratedAnswer(data.answer);
-    } catch (error) {
-      console.error(error);
-      alert("Failed to generate answer");
+    } catch (err) {
+      console.error(err);
+      error("Failed to generate answer");
     } finally {
       setAnswerLoading(false);
     }
@@ -194,7 +196,7 @@ export function CoverLetterClient() {
 
   const copyAnswer = async () => {
     await navigator.clipboard.writeText(generatedAnswer);
-    alert("Answer copied to clipboard!");
+    success("Answer copied to clipboard!");
   };
 
   return (

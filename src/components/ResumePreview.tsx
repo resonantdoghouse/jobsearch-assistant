@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { useReactToPrint } from "react-to-print";
 import ReactMarkdown from "react-markdown";
+import { useToast } from "@/components/ToastContext";
 
 export interface ResumeData {
   fullName: string;
@@ -55,6 +56,7 @@ export function ResumePreview({
   const [editedContent, setEditedContent] = useState<ResumeData | null>(
     typeof content === "object" ? content : null,
   );
+  const { success, error } = useToast();
 
   const handlePrint = useReactToPrint({
     contentRef: contentRef,
@@ -86,19 +88,19 @@ export function ResumePreview({
         });
 
         if (res.ok) {
-          alert("Resume saved successfully to your Dashboard!");
+          success("Resume saved successfully to your Dashboard!");
         } else {
           const err = await res.json();
           if (res.status === 401) {
-            alert("You must be logged in to save resumes.");
+            error("You must be logged in to save resumes.");
           } else {
-            alert(`Failed to save: ${err.error || "Unknown error"}`);
+            error(`Failed to save: ${err.error || "Unknown error"}`);
           }
         }
       }
     } catch (e) {
       console.error(e);
-      alert("An error occurred while saving.");
+      error("An error occurred while saving.");
     } finally {
       setIsSaving(false);
     }

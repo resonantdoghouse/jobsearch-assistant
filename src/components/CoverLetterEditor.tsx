@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { downloadPDF, downloadDOCX, downloadRTF } from "@/lib/utils/download";
+import { useToast } from "@/components/ToastContext";
 
 interface CoverLetterData {
   _id: string;
@@ -19,6 +20,7 @@ export function CoverLetterEditor({
   const [content, setContent] = useState(coverLetter.content);
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<string | null>(null);
+  const { success, error } = useToast();
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -31,12 +33,13 @@ export function CoverLetterEditor({
 
       if (res.ok) {
         setLastSaved(new Date().toLocaleTimeString());
+        success("Saved successfully");
       } else {
-        alert("Failed to save cover letter");
+        error("Failed to save cover letter");
       }
-    } catch (error) {
-      console.error("Save failed", error);
-      alert("An error occurred while saving");
+    } catch (err) {
+      console.error("Save failed", err);
+      error("An error occurred while saving");
     } finally {
       setIsSaving(false);
     }
@@ -56,7 +59,7 @@ export function CoverLetterEditor({
 
   const handleCopy = async () => {
     await navigator.clipboard.writeText(content);
-    alert("Copied to clipboard!");
+    success("Copied to clipboard!");
   };
 
   return (

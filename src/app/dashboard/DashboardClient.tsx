@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/components/ToastContext";
 
 import Image from "next/image";
 
@@ -39,6 +40,7 @@ export function DashboardClient({
   const [resumes, setResumes] = useState(initialResumes);
   const [analyses, setAnalyses] = useState(initialAnalyses);
   const [coverLetters, setCoverLetters] = useState(initialCoverLetters);
+  const { success, error } = useToast();
 
   const [resumeSort, setResumeSort] = useState<"newest" | "oldest">("newest");
   const [analysisSort, setAnalysisSort] = useState<"newest" | "oldest">(
@@ -71,11 +73,11 @@ export function DashboardClient({
         }
         router.refresh();
       } else {
-        alert("Failed to delete item");
+        error("Failed to delete item");
       }
-    } catch (error) {
-      console.error("Delete failed", error);
-      alert("An error occurred");
+    } catch (err) {
+      console.error("Delete failed", err);
+      error("An error occurred");
     }
   };
 
@@ -118,9 +120,9 @@ export function DashboardClient({
         throw new Error("Failed to toggle star");
       }
       router.refresh();
-    } catch (error) {
-      console.error("Toggle star failed", error);
-      alert("Failed to update favorite status");
+    } catch (err) {
+      console.error("Toggle star failed", err);
+      error("Failed to update favorite status");
       // Revert optimistic update ideally, but simple alert for now
     }
   };
@@ -572,7 +574,7 @@ export function DashboardClient({
                       onClick={async () => {
                         if (cl.content) {
                           await navigator.clipboard.writeText(cl.content);
-                          alert("Cover letter copied to clipboard!");
+                          success("Cover letter copied to clipboard!");
                         }
                       }}
                       className="text-blue-600 hover:text-blue-800 text-sm font-medium px-2 py-1"
