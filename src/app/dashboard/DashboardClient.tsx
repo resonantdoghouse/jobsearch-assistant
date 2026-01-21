@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ToastContext";
+import { ConfirmationModal } from "@/components/ConfirmationModal";
 
 import Image from "next/image";
 
@@ -42,6 +43,12 @@ export function DashboardClient({
   const [coverLetters, setCoverLetters] = useState(initialCoverLetters);
   const { success, error } = useToast();
 
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<{
+    type: "resume" | "analysis" | "cover-letter";
+    id: string;
+  } | null>(null);
+
   const [resumeSort, setResumeSort] = useState<"newest" | "oldest">("newest");
   const [analysisSort, setAnalysisSort] = useState<"newest" | "oldest">(
     "newest",
@@ -50,11 +57,17 @@ export function DashboardClient({
     "newest",
   );
 
-  const handleDelete = async (
+  const handleDeleteClick = (
     type: "resume" | "analysis" | "cover-letter",
     id: string,
   ) => {
-    if (!confirm("Are you sure you want to delete this item?")) return;
+    setItemToDelete({ type, id });
+    setDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!itemToDelete) return;
+    const { type, id } = itemToDelete;
 
     try {
       const res = await fetch("/api/delete-item", {
@@ -72,12 +85,16 @@ export function DashboardClient({
           setCoverLetters((prev) => prev.filter((item) => item._id !== id));
         }
         router.refresh();
+        success("Item deleted successfully");
       } else {
         error("Failed to delete item");
       }
     } catch (err) {
       console.error("Delete failed", err);
       error("An error occurred");
+    } finally {
+      setDeleteModalOpen(false);
+      setItemToDelete(null);
     }
   };
 
@@ -335,7 +352,7 @@ export function DashboardClient({
                       View
                     </Link>
                     <button
-                      onClick={() => handleDelete("resume", resume._id)}
+                      onClick={() => handleDeleteClick("resume", resume._id)}
                       className="text-red-500 hover:text-red-700 text-sm font-medium px-2 py-1"
                     >
                       Delete
@@ -456,7 +473,9 @@ export function DashboardClient({
                       View
                     </Link>
                     <button
-                      onClick={() => handleDelete("analysis", analysis._id)}
+                      onClick={() =>
+                        handleDeleteClick("analysis", analysis._id)
+                      }
                       className="text-red-500 hover:text-red-700 text-sm font-medium px-2 py-1"
                     >
                       Delete
@@ -588,7 +607,7 @@ export function DashboardClient({
                       View
                     </Link>
                     <button
-                      onClick={() => handleDelete("cover-letter", cl._id)}
+                      onClick={() => handleDeleteClick("cover-letter", cl._id)}
                       className="text-red-500 hover:text-red-700 text-sm font-medium px-2 py-1"
                     >
                       Delete
@@ -600,6 +619,17 @@ export function DashboardClient({
           )}
         </div>
       </div>
+
+      <ConfirmationModal
+        isOpen={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        onConfirm={confirmDelete}
+        title="Confirm Deletion"
+        message="Are you sure you want to delete this item? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        isDestructive={true}
+      />
     </div>
   );
 }
