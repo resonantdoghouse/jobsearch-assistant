@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
     // }
 
     const body = await req.json();
-    const { problemId, code, language, status, executionTime, userId } = body;
+    const { problemId, code, language, status, executionTime, userId, score, timeComplexity, spaceComplexity } = body;
 
     // TODO: Use real user ID from session. For now, accepting userId from body for testing if necessary, 
     // but in prod should be session.user.id
@@ -36,7 +36,10 @@ export async function POST(req: NextRequest) {
       code,
       language,
       status,
-      executionTime
+      executionTime,
+      score,
+      timeComplexity,
+      spaceComplexity
     });
 
     return NextResponse.json({ success: true, submission }, { status: 201 });

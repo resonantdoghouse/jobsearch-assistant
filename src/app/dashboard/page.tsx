@@ -5,6 +5,7 @@ import dbConnect from "@/lib/db/connect";
 import Resume from "@/lib/db/models/Resume";
 import ResumeAnalysis from "@/lib/db/models/ResumeAnalysis";
 import CoverLetter from "@/lib/db/models/CoverLetter";
+import Submission from "@/lib/db/models/Submission";
 import { DashboardClient } from "./DashboardClient";
 
 export const dynamic = "force-dynamic";
@@ -43,15 +44,19 @@ export default async function DashboardPage() {
   }
 
   // Fetch Data in parallel
-  const [resumes, analyses, coverLetters] = await Promise.all([
+  const [resumes, analyses, coverLetters, submissions] = await Promise.all([
     Resume.find({ userId: user._id }).sort({ updatedAt: -1 }).lean(),
     ResumeAnalysis.find({ userId: user._id }).sort({ createdAt: -1 }).lean(),
     CoverLetter.find({ userId: user._id }).sort({ createdAt: -1 }).lean(),
+    Submission.find({ userId: user._id, status: "Accepted" })
+      .populate("problemId", "title slug difficulty")
+      .sort({ createdAt: -1 })
+      .lean(),
   ]);
 
   console.log(
     "Debug Resumes Starred Status:",
-    resumes.map((r) => ({ id: r._id, starred: r.isStarred })),
+    resumes.map((r: any) => ({ id: r._id, starred: r.isStarred })),
   );
 
   return (
@@ -66,6 +71,7 @@ export default async function DashboardPage() {
         resumes={JSON.parse(JSON.stringify(resumes))}
         analyses={JSON.parse(JSON.stringify(analyses))}
         coverLetters={JSON.parse(JSON.stringify(coverLetters))}
+        submissions={JSON.parse(JSON.stringify(submissions))}
       />
     </div>
   );

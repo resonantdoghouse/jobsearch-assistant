@@ -29,6 +29,7 @@ interface DashboardProps {
   resumes: DashboardItem[];
   analyses: DashboardItem[];
   coverLetters: DashboardItem[];
+  submissions: any[]; // Using any for now to avoid strict typing on populate, ideally create interface
 }
 
 export function DashboardClient({
@@ -36,6 +37,7 @@ export function DashboardClient({
   resumes: initialResumes,
   analyses: initialAnalyses,
   coverLetters: initialCoverLetters,
+  submissions,
 }: DashboardProps) {
   const router = useRouter();
   const [resumes, setResumes] = useState(initialResumes);
@@ -232,16 +234,46 @@ export function DashboardClient({
             <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
               <span className="text-2xl">⚡</span> Interview Prep
             </h3>
-            <p className="text-gray-600 mb-6">
-              Practice coding problems with our new LeetCode-style assistant.
-              Improve your algorithm skills before your next interview.
-            </p>
+
+            {submissions && submissions.length > 0 ? (
+              <div className="mb-6">
+                <p className="text-gray-600 mb-2">
+                  You have solved <strong>{submissions.length}</strong>{" "}
+                  challenge{submissions.length !== 1 && "s"}. Keep it up!
+                </p>
+                <div className="space-y-2 max-h-48 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-200">
+                  {submissions.map((sub: any) => (
+                    <div
+                      key={sub._id}
+                      className="flex justify-between items-center text-sm bg-green-50 p-2 rounded border border-green-100"
+                    >
+                      <span className="font-medium text-gray-800">
+                        {sub.problemId?.title || "Unknown Problem"}
+                      </span>
+                      <Link
+                        href={`/dashboard/interview-prep/${sub.problemId?.slug}`}
+                        className="text-indigo-600 hover:underline text-xs"
+                      >
+                        View
+                      </Link>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <p className="text-gray-600 mb-6">
+                Practice coding problems with our new LeetCode-style assistant.
+                Improve your algorithm skills before your next interview.
+              </p>
+            )}
           </div>
           <Link
             href="/dashboard/interview-prep"
             className="block w-full text-center bg-indigo-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-indigo-700 transition-colors"
           >
-            Start Practicing
+            {submissions && submissions.length > 0
+              ? "Practice More"
+              : "Start Practicing"}
           </Link>
         </div>
 
