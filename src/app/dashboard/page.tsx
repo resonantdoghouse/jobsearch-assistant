@@ -6,6 +6,7 @@ import Resume from "@/lib/db/models/Resume";
 import ResumeAnalysis from "@/lib/db/models/ResumeAnalysis";
 import CoverLetter from "@/lib/db/models/CoverLetter";
 import Submission from "@/lib/db/models/Submission";
+import "@/lib/db/models/Problem";
 import { DashboardClient } from "./DashboardClient";
 
 export const dynamic = "force-dynamic";

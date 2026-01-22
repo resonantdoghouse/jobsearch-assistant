@@ -69,6 +69,8 @@ export function ResumeEditor({ resume }: { resume: any }) {
         throw new Error("Failed to save");
       }
 
+      setDisplayContent(updatedContent);
+      setContentKey((prev) => prev + 1);
       success("Resume updated successfully!");
     } catch {
       error("Failed to save changes.");

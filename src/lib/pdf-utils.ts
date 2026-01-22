@@ -17,10 +17,24 @@ export async function extractTextFromPDF(buffer: Buffer): Promise<string> {
         reject(new Error(parserError));
     });
 
-    pdfParser.on("pdfParser_dataReady", () => {
-      // pdf2json returns raw content
-      const rawText = pdfParser.getRawTextContent();
-      resolve(rawText);
+    pdfParser.on("pdfParser_dataReady", (pdfData) => {
+      try {
+        let parsedText = "";
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        pdfData.Pages.forEach((page: any) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          page.Texts.forEach((text: any) => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            text.R.forEach((r: any) => {
+              parsedText += decodeURIComponent(r.T) + " ";
+            });
+          });
+          parsedText += "\n";
+        });
+        resolve(parsedText);
+      } catch (e) {
+        reject(e);
+      }
     });
 
     try {
