@@ -14,6 +14,16 @@ export interface ResumeData {
     linkedin?: string;
     website?: string;
   };
+  sectionTitles?: {
+    summary?: string;
+    skills?: string;
+    experience?: string;
+    education?: string;
+    projects?: string;
+    languages?: string;
+    frameworks?: string;
+    tools?: string;
+  };
   summary: string;
   skills: {
     languages: string[];
@@ -53,8 +63,28 @@ export function ResumePreview({
   const contentRef = useRef<HTMLDivElement>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+
+  // Initialize editedContent ensuring proper defaults for sectionTitles
+  const initializeContent = (c: ResumeData | string): ResumeData | null => {
+    if (typeof c !== "object") return null;
+    return {
+      ...c,
+      sectionTitles: {
+        summary: "Professional Summary",
+        skills: "Technical Skills",
+        experience: "Experience",
+        education: "Education",
+        projects: "Projects",
+        languages: "Languages",
+        frameworks: "Frameworks",
+        tools: "Tools",
+        ...c.sectionTitles,
+      },
+    };
+  };
+
   const [editedContent, setEditedContent] = useState<ResumeData | null>(
-    typeof content === "object" ? content : null,
+    initializeContent(content),
   );
   const { success, error } = useToast();
 
@@ -164,11 +194,25 @@ export function ResumePreview({
     );
   }
 
-  // Use edited content if editing, otherwise original content
-  const displayContent = isEditing && editedContent ? editedContent : content;
+  // Use edited content if editing, otherwise original content (with defaults applied)
+  const displayContent =
+    isEditing && editedContent
+      ? editedContent
+      : initializeContent(content) || (content as ResumeData);
+
   const {
     fullName,
     contactInfo,
+    sectionTitles = {
+      summary: "Professional Summary",
+      skills: "Technical Skills",
+      experience: "Experience",
+      education: "Education",
+      projects: "Projects",
+      languages: "Languages",
+      frameworks: "Frameworks",
+      tools: "Tools",
+    },
     summary,
     skills,
     experience,
@@ -188,7 +232,7 @@ export function ResumePreview({
               onClick={() => {
                 if (isEditing) {
                   // Cancel editing - reset content
-                  setEditedContent(content);
+                  setEditedContent(initializeContent(content));
                   setIsEditing(false);
                 } else {
                   setIsEditing(true);
@@ -324,9 +368,24 @@ export function ResumePreview({
           {/* Summary */}
           {(summary || isEditing) && (
             <section className="mb-6">
-              <h2 className="text-xl font-bold uppercase tracking-wider border-b border-slate-300 pb-1 mb-3 text-slate-800">
-                Professional Summary
-              </h2>
+              {isEditing ? (
+                <input
+                  value={sectionTitles.summary}
+                  onChange={(e) =>
+                    updateNestedField(
+                      "sectionTitles",
+                      "summary",
+                      e.target.value,
+                    )
+                  }
+                  className="text-xl font-bold uppercase tracking-wider border-b border-slate-300 pb-1 mb-3 text-slate-800 w-full border-dashed focus:border-indigo-500 focus:outline-none"
+                />
+              ) : (
+                <h2 className="text-xl font-bold uppercase tracking-wider border-b border-slate-300 pb-1 mb-3 text-slate-800">
+                  {sectionTitles.summary}
+                </h2>
+              )}
+
               {isEditing ? (
                 <textarea
                   value={summary}
@@ -345,15 +404,29 @@ export function ResumePreview({
           {/* Skills */}
           {(skills || isEditing) && (
             <section className="mb-6">
-              <h2 className="text-xl font-bold uppercase tracking-wider border-b border-slate-300 pb-1 mb-3 text-slate-800">
-                Technical Skills
-              </h2>
+              {isEditing ? (
+                <input
+                  value={sectionTitles.skills}
+                  onChange={(e) =>
+                    updateNestedField("sectionTitles", "skills", e.target.value)
+                  }
+                  className="text-xl font-bold uppercase tracking-wider border-b border-slate-300 pb-1 mb-3 text-slate-800 w-full border-dashed focus:border-indigo-500 focus:outline-none"
+                />
+              ) : (
+                <h2 className="text-xl font-bold uppercase tracking-wider border-b border-slate-300 pb-1 mb-3 text-slate-800">
+                  {sectionTitles.skills}
+                </h2>
+              )}
+
               {isEditing ? (
                 <div className="space-y-2">
                   <div>
-                    <label className="text-xs font-bold text-gray-500">
-                      Languages (comma separated)
-                    </label>
+                    <input 
+                      value={sectionTitles.languages}
+                      onChange={(e) => updateNestedField("sectionTitles", "languages", e.target.value)}
+                      className="text-xs font-bold text-gray-500 w-full border-b border-dashed mb-1 focus:border-indigo-500 focus:outline-none"
+                      placeholder="Languages (comma separated)"
+                    />
                     <input
                       value={skills.languages.join(", ")}
                       onChange={(e) =>
@@ -367,9 +440,12 @@ export function ResumePreview({
                     />
                   </div>
                   <div>
-                    <label className="text-xs font-bold text-gray-500">
-                      Frameworks (comma separated)
-                    </label>
+                    <input 
+                      value={sectionTitles.frameworks}
+                      onChange={(e) => updateNestedField("sectionTitles", "frameworks", e.target.value)}
+                      className="text-xs font-bold text-gray-500 w-full border-b border-dashed mb-1 focus:border-indigo-500 focus:outline-none"
+                      placeholder="Frameworks (comma separated)"
+                    />
                     <input
                       value={skills.frameworks.join(", ")}
                       onChange={(e) =>
@@ -383,9 +459,12 @@ export function ResumePreview({
                     />
                   </div>
                   <div>
-                    <label className="text-xs font-bold text-gray-500">
-                      Tools (comma separated)
-                    </label>
+                    <input 
+                      value={sectionTitles.tools}
+                      onChange={(e) => updateNestedField("sectionTitles", "tools", e.target.value)}
+                      className="text-xs font-bold text-gray-500 w-full border-b border-dashed mb-1 focus:border-indigo-500 focus:outline-none"
+                      placeholder="Tools (comma separated)"
+                    />
                     <input
                       value={skills.tools.join(", ")}
                       onChange={(e) =>
@@ -404,7 +483,7 @@ export function ResumePreview({
                   {skills.languages && skills.languages.length > 0 && (
                     <div className="flex">
                       <span className="font-bold w-32 shrink-0">
-                        Languages:
+                        {sectionTitles.languages}:
                       </span>{" "}
                       <span>{skills.languages.join(", ")}</span>
                     </div>
@@ -412,14 +491,16 @@ export function ResumePreview({
                   {skills.frameworks && skills.frameworks.length > 0 && (
                     <div className="flex">
                       <span className="font-bold w-32 shrink-0">
-                        Frameworks:
+                        {sectionTitles.frameworks}:
                       </span>{" "}
                       <span>{skills.frameworks.join(", ")}</span>
                     </div>
                   )}
                   {skills.tools && skills.tools.length > 0 && (
                     <div className="flex">
-                      <span className="font-bold w-32 shrink-0">Tools:</span>{" "}
+                      <span className="font-bold w-32 shrink-0">
+                        {sectionTitles.tools}:
+                      </span>{" "}
                       <span>{skills.tools.join(", ")}</span>
                     </div>
                   )}
@@ -431,9 +512,24 @@ export function ResumePreview({
           {/* Experience */}
           {((experience && experience.length > 0) || isEditing) && (
             <section className="mb-6">
-              <h2 className="text-xl font-bold uppercase tracking-wider border-b border-slate-300 pb-1 mb-3 text-slate-800">
-                Experience
-              </h2>
+              {isEditing ? (
+                <input
+                  value={sectionTitles.experience}
+                  onChange={(e) =>
+                    updateNestedField(
+                      "sectionTitles",
+                      "experience",
+                      e.target.value,
+                    )
+                  }
+                  className="text-xl font-bold uppercase tracking-wider border-b border-slate-300 pb-1 mb-3 text-slate-800 w-full border-dashed focus:border-indigo-500 focus:outline-none"
+                />
+              ) : (
+                <h2 className="text-xl font-bold uppercase tracking-wider border-b border-slate-300 pb-1 mb-3 text-slate-800">
+                  {sectionTitles.experience}
+                </h2>
+              )}
+
               <div className="space-y-5">
                 {experience.map((job, idx) => (
                   <div key={idx} className="relative group">
@@ -568,9 +664,24 @@ export function ResumePreview({
           {/* Projects */}
           {((projects && projects.length > 0) || isEditing) && (
             <section className="mb-6">
-              <h2 className="text-xl font-bold uppercase tracking-wider border-b border-slate-300 pb-1 mb-3 text-slate-800">
-                Projects
-              </h2>
+              {isEditing ? (
+                <input
+                  value={sectionTitles.projects}
+                  onChange={(e) =>
+                    updateNestedField(
+                      "sectionTitles",
+                      "projects",
+                      e.target.value,
+                    )
+                  }
+                  className="text-xl font-bold uppercase tracking-wider border-b border-slate-300 pb-1 mb-3 text-slate-800 w-full border-dashed focus:border-indigo-500 focus:outline-none"
+                />
+              ) : (
+                <h2 className="text-xl font-bold uppercase tracking-wider border-b border-slate-300 pb-1 mb-3 text-slate-800">
+                  {sectionTitles.projects}
+                </h2>
+              )}
+
               <div className="space-y-4">
                 {projects?.map((proj, idx) => (
                   <div key={idx} className="relative group">
@@ -674,9 +785,24 @@ export function ResumePreview({
           {/* Education */}
           {((education && education.length > 0) || isEditing) && (
             <section className="mb-6">
-              <h2 className="text-xl font-bold uppercase tracking-wider border-b border-slate-300 pb-1 mb-3 text-slate-800">
-                Education
-              </h2>
+              {isEditing ? (
+                <input
+                  value={sectionTitles.education}
+                  onChange={(e) =>
+                    updateNestedField(
+                      "sectionTitles",
+                      "education",
+                      e.target.value,
+                    )
+                  }
+                  className="text-xl font-bold uppercase tracking-wider border-b border-slate-300 pb-1 mb-3 text-slate-800 w-full border-dashed focus:border-indigo-500 focus:outline-none"
+                />
+              ) : (
+                <h2 className="text-xl font-bold uppercase tracking-wider border-b border-slate-300 pb-1 mb-3 text-slate-800">
+                  {sectionTitles.education}
+                </h2>
+              )}
+
               <div className="space-y-2">
                 {education.map((edu, idx) => (
                   <div
