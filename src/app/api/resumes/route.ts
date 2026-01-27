@@ -29,13 +29,22 @@ export async function POST(req: Request) {
          return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const body = await req.json();
-    const { title, content, analysis } = body;
+    // Validate input using Zod
+    const { z } = await import("zod");
+    const resumeSchema = z.object({
+      title: z.string().optional(),
+      content: z.record(z.string(), z.any()), // Validate as object, refine based on ResumeData structure if possible
+      analysis: z.string().optional(),
+    });
 
-    // Validate input
-    if (!content) {
-      return NextResponse.json({ error: "Content is required" }, { status: 400 });
+    const body = await req.json();
+    const result = resumeSchema.safeParse(body);
+
+    if (!result.success) {
+      return NextResponse.json({ error: "Invalid input", details: result.error.format() }, { status: 400 });
     }
+
+    const { title, content, analysis } = result.data;
 
     // Check if we are updating an existing resume (by ID) or creating a new one
     // For MVP, let's just create a new one every time the user hits "Save", or we could handle "Update".

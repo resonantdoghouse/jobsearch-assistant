@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Navbar } from "@/components/Navbar";
+
 
 interface Job {
   id: string;
@@ -70,229 +70,225 @@ export default function JobSearchPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <Navbar />
+    <div className="space-y-6">
+      <div className="mb-8 text-center">
+        <h1 className="text-3xl font-extrabold text-gray-900 sm:text-4xl mb-2">
+          Find Your Next Role
+        </h1>
+        <p className="text-lg text-gray-600">
+          Search across LinkedIn and Indeed instantly.
+        </p>
+      </div>
 
-      <main className="flex-grow max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8 text-center">
-          <h1 className="text-3xl font-extrabold text-gray-900 sm:text-4xl mb-2">
-            Find Your Next Role
-          </h1>
-          <p className="text-lg text-gray-600">
-            Search across LinkedIn and Indeed instantly.
-          </p>
-        </div>
-
-        {/* Search Form */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8 transition-all hover:shadow-md">
-          <form onSubmit={handleSearch} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label
-                  htmlFor="keywords"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Keywords
-                </label>
-                <input
-                  type="text"
-                  id="keywords"
-                  value={keywords}
-                  onChange={(e) => setKeywords(e.target.value)}
-                  placeholder="e.g. Frontend Developer, React"
-                  className="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-                  required
-                />
-              </div>
-              <div>
-                <label
-                  htmlFor="location"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Location
-                </label>
-                <input
-                  type="text"
-                  id="location"
-                  value={location}
-                  onChange={(e) => setLocation(e.target.value)}
-                  placeholder="e.g. Remote, Toronto ON"
-                  className="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-                  required
-                />
-              </div>
-            </div>
-
-            <div className="flex items-center gap-6">
-              <span className="text-sm font-medium text-gray-700">
-                Sources:
-              </span>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={selectedSources.includes("linkedin")}
-                  onChange={() => handleSourceChange("linkedin")}
-                  className="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500"
-                />
-                <span className="text-sm text-gray-600">LinkedIn</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={selectedSources.includes("indeed")}
-                  onChange={() => handleSourceChange("indeed")}
-                  className="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500"
-                />
-                <span className="text-sm text-gray-600">Indeed</span>
-              </label>
-            </div>
-
-            <div className="flex justify-end pt-2">
-              <button
-                type="submit"
-                disabled={loading}
-                className={`px-8 py-3 rounded-lg font-medium text-white transition-all shadow-md hover:shadow-lg ${
-                  loading
-                    ? "bg-indigo-400 cursor-not-allowed"
-                    : "bg-indigo-600 hover:bg-indigo-700 hover:-translate-y-0.5"
-                }`}
+      {/* Search Form */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8 transition-all hover:shadow-md">
+        <form onSubmit={handleSearch} className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label
+                htmlFor="keywords"
+                className="block text-sm font-medium text-gray-700 mb-1"
               >
-                {loading ? (
-                  <span className="flex items-center gap-2">
-                    <svg
-                      className="animate-spin h-5 w-5 text-white"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    Searching...
-                  </span>
-                ) : (
-                  "Search Jobs"
-                )}
-              </button>
+                Keywords
+              </label>
+              <input
+                type="text"
+                id="keywords"
+                value={keywords}
+                onChange={(e) => setKeywords(e.target.value)}
+                placeholder="e.g. Frontend Developer, React"
+                className="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                required
+              />
             </div>
-          </form>
-        </div>
-
-        {/* Results */}
-        <div className="space-y-6">
-          {error && (
-            <div className="bg-red-50 text-red-700 p-4 rounded-lg border border-red-200">
-              {error}
-            </div>
-          )}
-
-          {loading && !jobs.length && (
-            <div className="text-center py-12">
-              <div className="animate-pulse flex flex-col items-center">
-                <div className="h-4 w-48 bg-gray-200 rounded mb-4"></div>
-                <div className="h-4 w-32 bg-gray-200 rounded"></div>
-              </div>
-              <p className="mt-4 text-gray-500">
-                Scouring the web for opportunities...
-              </p>
-            </div>
-          )}
-
-          {!loading && hasSearched && jobs.length === 0 && !error && (
-            <div className="text-center py-12 bg-white rounded-xl border border-gray-200 border-dashed">
-              <p className="text-gray-500 text-lg">
-                No jobs found. Try different keywords or location.
-              </p>
-              {selectedSources.includes("indeed") && (
-                <p className="mt-2 text-sm text-gray-400">
-                  Note: Indeed has strict anti-scraping.{" "}
-                  <a
-                    href={`https://ca.indeed.com/jobs?q=${keywords}&l=${location}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-indigo-600 hover:underline"
-                  >
-                    Click here to search Indeed directly.
-                  </a>
-                </p>
-              )}
-            </div>
-          )}
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {jobs.map((job) => (
-              <div
-                key={job.id}
-                className="group bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md hover:border-indigo-200 transition-all flex flex-col h-full"
+            <div>
+              <label
+                htmlFor="location"
+                className="block text-sm font-medium text-gray-700 mb-1"
               >
-                <div className="flex-grow">
-                  <div className="flex justify-between items-start mb-2">
-                    <span
-                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                        job.source === "linkedin"
-                          ? "bg-blue-100 text-blue-800"
-                          : "bg-indigo-100 text-indigo-800"
-                      }`}
-                    >
-                      {job.source === "linkedin" ? "LinkedIn" : "Indeed"}
-                    </span>
-                    <span className="text-xs text-gray-500">{job.date}</span>
-                  </div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-1 group-hover:text-indigo-600 transition-colors line-clamp-2">
-                    {job.title}
-                  </h3>
-                  <p className="text-sm font-medium text-gray-700 mb-2">
-                    {job.company}
-                  </p>
-                  <div className="flex items-center text-sm text-gray-500 mb-4">
-                    <svg
-                      className="h-4 w-4 mr-1"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                      />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth="2"
-                        d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                      />
-                    </svg>
-                    {job.location}
-                  </div>
-                </div>
-                <div className="mt-4 pt-4 border-t border-gray-100">
-                  <a
-                    href={job.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block w-full text-center px-4 py-2 border border-transparent rounded-lg text-sm font-medium text-indigo-600 bg-indigo-50 hover:bg-indigo-100 transition-colors"
-                  >
-                    View Job
-                  </a>
-                </div>
-              </div>
-            ))}
+                Location
+              </label>
+              <input
+                type="text"
+                id="location"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                placeholder="e.g. Remote, Toronto ON"
+                className="w-full h-12 px-4 rounded-lg border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                required
+              />
+            </div>
           </div>
+
+          <div className="flex items-center gap-6">
+            <span className="text-sm font-medium text-gray-700">
+              Sources:
+            </span>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={selectedSources.includes("linkedin")}
+                onChange={() => handleSourceChange("linkedin")}
+                className="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500"
+              />
+              <span className="text-sm text-gray-600">LinkedIn</span>
+            </label>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={selectedSources.includes("indeed")}
+                onChange={() => handleSourceChange("indeed")}
+                className="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500"
+              />
+              <span className="text-sm text-gray-600">Indeed</span>
+            </label>
+          </div>
+
+          <div className="flex justify-end pt-2">
+            <button
+              type="submit"
+              disabled={loading}
+              className={`px-8 py-3 rounded-lg font-medium text-white transition-all shadow-md hover:shadow-lg ${
+                loading
+                  ? "bg-indigo-400 cursor-not-allowed"
+                  : "bg-indigo-600 hover:bg-indigo-700 hover:-translate-y-0.5"
+              }`}
+            >
+              {loading ? (
+                <span className="flex items-center gap-2">
+                  <svg
+                    className="animate-spin h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  Searching...
+                </span>
+              ) : (
+                "Search Jobs"
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {/* Results */}
+      <div className="space-y-6">
+        {error && (
+          <div className="bg-red-50 text-red-700 p-4 rounded-lg border border-red-200">
+            {error}
+          </div>
+        )}
+
+        {loading && !jobs.length && (
+          <div className="text-center py-12">
+            <div className="animate-pulse flex flex-col items-center">
+              <div className="h-4 w-48 bg-gray-200 rounded mb-4"></div>
+              <div className="h-4 w-32 bg-gray-200 rounded"></div>
+            </div>
+            <p className="mt-4 text-gray-500">
+              Scouring the web for opportunities...
+            </p>
+          </div>
+        )}
+
+        {!loading && hasSearched && jobs.length === 0 && !error && (
+          <div className="text-center py-12 bg-white rounded-xl border border-gray-200 border-dashed">
+            <p className="text-gray-500 text-lg">
+              No jobs found. Try different keywords or location.
+            </p>
+            {selectedSources.includes("indeed") && (
+              <p className="mt-2 text-sm text-gray-400">
+                Note: Indeed has strict anti-scraping.{" "}
+                <a
+                  href={`https://ca.indeed.com/jobs?q=${keywords}&l=${location}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-indigo-600 hover:underline"
+                >
+                  Click here to search Indeed directly.
+                </a>
+              </p>
+            )}
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {jobs.map((job) => (
+            <div
+              key={job.id}
+              className="group bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md hover:border-indigo-200 transition-all flex flex-col h-full"
+            >
+              <div className="flex-grow">
+                <div className="flex justify-between items-start mb-2">
+                  <span
+                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      job.source === "linkedin"
+                        ? "bg-blue-100 text-blue-800"
+                        : "bg-indigo-100 text-indigo-800"
+                    }`}
+                  >
+                    {job.source === "linkedin" ? "LinkedIn" : "Indeed"}
+                  </span>
+                  <span className="text-xs text-gray-500">{job.date}</span>
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 mb-1 group-hover:text-indigo-600 transition-colors line-clamp-2">
+                  {job.title}
+                </h3>
+                <p className="text-sm font-medium text-gray-700 mb-2">
+                  {job.company}
+                </p>
+                <div className="flex items-center text-sm text-gray-500 mb-4">
+                  <svg
+                    className="h-4 w-4 mr-1"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                  </svg>
+                  {job.location}
+                </div>
+              </div>
+              <div className="mt-4 pt-4 border-t border-gray-100">
+                <a
+                  href={job.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block w-full text-center px-4 py-2 border border-transparent rounded-lg text-sm font-medium text-indigo-600 bg-indigo-50 hover:bg-indigo-100 transition-colors"
+                >
+                  View Job
+                </a>
+              </div>
+            </div>
+          ))}
         </div>
-      </main>
+      </div>
     </div>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { usePathname } from "next/navigation";
@@ -13,6 +14,8 @@ interface User {
 }
 
 export function Navbar({ user }: { user?: User }) {
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/85 backdrop-blur-md transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -72,11 +75,123 @@ export function Navbar({ user }: { user?: User }) {
               </Link>
             )}
           </div>
+          
+          {/* Mobile menu button */}
+          <div className="flex items-center sm:hidden">
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+              aria-expanded="false"
+            >
+              <span className="sr-only">Open main menu</span>
+              {/* Icon when menu is closed. */}
+              {/* Heroicon name: outline/menu */}
+              <svg
+                className={`${isOpen ? "hidden" : "block"} h-6 w-6`}
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
+              </svg>
+              {/* Icon when menu is open. */}
+              {/* Heroicon name: outline/x */}
+              <svg
+                className={`${isOpen ? "block" : "hidden"} h-6 w-6`}
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile menu, show/hide based on menu state. */}
+      <div className={`${isOpen ? "block" : "hidden"} sm:hidden border-t border-gray-200 bg-white`}>
+        <div className="pt-2 pb-3 space-y-1">
+          <MobileNavLink href="/resume-review" onClick={() => setIsOpen(false)}>Resume Review</MobileNavLink>
+          <MobileNavLink href="/cover-letter" onClick={() => setIsOpen(false)}>Cover Letter</MobileNavLink>
+          <MobileNavLink href="/jobs" onClick={() => setIsOpen(false)}>Find Jobs</MobileNavLink>
+          <MobileNavLink href="/dashboard/interview-prep" onClick={() => setIsOpen(false)}>Interview Prep</MobileNavLink>
+          {user && <MobileNavLink href="/dashboard" onClick={() => setIsOpen(false)}>Dashboard</MobileNavLink>}
+        </div>
+        <div className="pt-4 pb-4 border-t border-gray-200">
+          {user ? (
+            <div className="flex items-center px-4">
+              <div className="flex-shrink-0">
+                {user.image ? (
+                  <Image
+                    className="h-10 w-10 rounded-full"
+                    src={user.image}
+                    alt=""
+                    width={40}
+                    height={40}
+                    unoptimized
+                  />
+                ) : (
+                  <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold">
+                    {user.name?.[0]}
+                  </div>
+                )}
+              </div>
+              <div className="ml-3">
+                <div className="text-base font-medium text-gray-800">{user.name}</div>
+                <div className="text-sm font-medium text-gray-500">{user.email}</div>
+              </div>
+            </div>
+          ) : (
+             <div className="px-4">
+                <Link
+                href="/login"
+                onClick={() => setIsOpen(false)}
+                className="block text-center w-full px-4 py-2 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 shadow-sm"
+              >
+                Sign in
+              </Link>
+             </div>
+          )}
         </div>
       </div>
     </nav>
   );
 }
+
+function MobileNavLink({
+    href,
+    children,
+    onClick
+  }: {
+    href: string;
+    children: React.ReactNode;
+    onClick?: () => void;
+  }) {
+    return (
+      <Link
+        href={href}
+        onClick={onClick}
+        className="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+      >
+        {children}
+      </Link>
+    );
+  }
 
 function NavLink({
   href,
