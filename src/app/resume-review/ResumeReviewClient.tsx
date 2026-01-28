@@ -174,7 +174,7 @@ export function ResumeReviewClient() {
             </div>
           ) : (
             <ResumePreview
-              content={JSON.stringify(rewrittenResume)}
+              content={rewrittenResume}
               analysis={analysis}
               isEditable={true}
             />
