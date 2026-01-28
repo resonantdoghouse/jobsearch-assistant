@@ -4,22 +4,29 @@ An AI-powered application designed to assist developers in their job search proc
 
 ## Features
 
-### 1. Resume Review
+### 1. Resume Review & Editing
 
-- **Upload**: Support for PDF and DOCX files.
-- **AI Analysis**: detailed feedback on technical skills, project descriptions, and formatting.
-- **Optimization**: tailored advice for passing ATS (Applicant Tracking Systems) and appealing to technical recruiters.
+- **Smart Analysis**: Upload PDF/DOCX resumes for instant AI feedback on skills, impact, and formatting.
+- **Interactive Editor**: Directly edit your parsed resume data.
+- **AI-Powered Refinement**: rewriting suggestions and improvements for specific sections (Summary, Experience, etc.).
+- **Visual Version Control**: Review changes with a **visual diff** tool before saving updates, ensuring you never lose important details.
 
 ### 2. Cover Letter Generator
 
-- **Customized Content**: Generates professional cover letters based on specific job details (Title, Company, Description).
-- **Context Aware**: Uses your uploaded or pasted resume content to highlight relevant experience.
+- **Tailored Content**: Generates professional cover letters based on specific job descriptions and company details.
+- **Context Aware**: Uses your resume's experience to highlight relevant skills for the target role.
 
-### 3. User Accounts & Dashboard
+### 3. Interview Preparation
 
-- **Authentication**: Secure login via GitHub (using NextAuth.js).
-- **Data Persistence**: Save resumes and cover letters to MongoDB.
-- **Dashboard**: Track your application materials and history.
+- **Coding Challenges**: Practice with built-in coding problems similar to technical interviews.
+- **Integrated Code Editor**: Write and run code directly in the browser (powered by Monaco Editor).
+- **AI Feedback**: Get instant assessment on your solutions.
+
+### 4. Advanced Dashboard
+
+- **Centralized Hub**: Track all your saved resumes, cover letters, and analysis sessions.
+- **Organization**: Star/Favorite important items for quick access.
+- **Sorting**: Easily sort content by date or favorites.
 
 ## Tech Stack
 
@@ -29,7 +36,8 @@ An AI-powered application designed to assist developers in their job search proc
 - **Database**: MongoDB (with Mongoose)
 - **Authentication**: NextAuth.js v5 (GitHub Provider)
 - **AI Model**: Google Gemini (via `@google/generative-ai`)
-- **PDF Processing**: `pdf2json`
+- **Editor**: Monaco Editor (React)
+- **Utilities**: `diff` (Text comparison), `pdf2json`, `mammoth` (Doc processing)
 
 ## Getting Started
 
@@ -64,7 +72,6 @@ An AI-powered application designed to assist developers in their job search proc
     ```
 
     Open `.env.local` and fill in your credentials:
-
     - `MONGODB_URI`: Your MongoDB connection string.
     - `AUTH_GITHUB_ID`: GitHub OAuth Client ID.
     - `AUTH_GITHUB_SECRET`: GitHub OAuth Client Secret.
@@ -83,9 +90,9 @@ An AI-powered application designed to assist developers in their job search proc
 ## Usages
 
 1.  **Sign In**: Click "Sign in" to log in with your GitHub account.
-2.  **Dashboard**: View your saved resumes and cover letters.
-3.  **Resume Review**: Navigate to `/resume-review`, upload your resume, and wait for the AI analysis.
-4.  **Cover Letter**: Navigate to `/cover-letter`, enter the job details and paste your resume text to generate a draft.
+2.  **Dashboard**: Manage your career assets. Star important resumes or review past cover letters.
+3.  **Resume Review**: Upload a resume to get AI feedback. Enter "Edit" mode to refine content and use the "AI Rewrite" tools.
+4.  **Interview Prep**: Navigate to the Interview Prep section to solve coding challenges.
 
 ## License
 
