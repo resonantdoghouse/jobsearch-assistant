@@ -4,13 +4,20 @@ import { useState } from "react";
 import { Toast, ToastType } from "@/components/Toast";
 import { ResumeUploader } from "@/components/ResumeUploader";
 import { ReviewResult } from "@/components/ReviewResult";
-import { ResumePreview } from "@/components/ResumePreview";
+import { ResumePreview, ResumeData } from "@/components/ResumePreview";
+import { ResumeDiffViewer } from "@/components/ResumeDiffViewer";
 
 export function ResumeReviewClient() {
   const [analysis, setAnalysis] = useState<string>("");
   const [extractedText, setExtractedText] = useState<string>("");
-  const [rewrittenResume, setRewrittenResume] = useState<string | null>(null);
+  const [rewrittenResume, setRewrittenResume] = useState<ResumeData | null>(
+    null,
+  );
+  const [currentResumeJson, setCurrentResumeJson] = useState<ResumeData | null>(
+    null,
+  );
   const [isRewriting, setIsRewriting] = useState(false);
+  const [showDiff, setShowDiff] = useState(false);
 
   const [refinementInstruction, setRefinementInstruction] = useState("");
   const [isRefining, setIsRefining] = useState(false);
@@ -19,10 +26,18 @@ export function ResumeReviewClient() {
     type: ToastType;
   } | null>(null);
 
-  const handleAnalysisComplete = (analysis: string, text: string) => {
+  const handleAnalysisComplete = (
+    analysis: string,
+    text: string,
+    structuredResume?: ResumeData,
+  ) => {
     setAnalysis(analysis);
     setExtractedText(text);
+    if (structuredResume) {
+      setCurrentResumeJson(structuredResume);
+    }
     setRewrittenResume(null); // Reset rewrite on new upload
+    setShowDiff(false);
     setRefinementInstruction("");
   };
 
@@ -119,11 +134,51 @@ export function ResumeReviewClient() {
 
       {rewrittenResume && (
         <div className="mt-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <ResumePreview
-            content={rewrittenResume}
-            analysis={analysis}
-            isEditable={true}
-          />
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold text-gray-900">
+              {showDiff ? "Resume Changes" : "Improved Resume"}
+            </h2>
+
+            {currentResumeJson && (
+              <div className="bg-gray-100 p-1 rounded-lg flex items-center">
+                <button
+                  onClick={() => setShowDiff(false)}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                    !showDiff
+                      ? "bg-white text-indigo-600 shadow-sm"
+                      : "text-gray-600 hover:text-gray-900"
+                  }`}
+                >
+                  Preview
+                </button>
+                <button
+                  onClick={() => setShowDiff(true)}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
+                    showDiff
+                      ? "bg-white text-indigo-600 shadow-sm"
+                      : "text-gray-600 hover:text-gray-900"
+                  }`}
+                >
+                  Compare Changes
+                </button>
+              </div>
+            )}
+          </div>
+
+          {showDiff && currentResumeJson ? (
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+              <ResumeDiffViewer
+                oldData={currentResumeJson}
+                newData={rewrittenResume}
+              />
+            </div>
+          ) : (
+            <ResumePreview
+              content={JSON.stringify(rewrittenResume)}
+              analysis={analysis}
+              isEditable={true}
+            />
+          )}
 
           {/* Refinement Section */}
           <div className="mt-8 bg-indigo-50 border border-indigo-100 p-6 rounded-xl">

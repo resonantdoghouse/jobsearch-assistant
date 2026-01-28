@@ -1,8 +1,18 @@
 "use client";
 
+import { Loading } from "@/components/ui/Loading";
+
 import { useState } from "react";
 
-export function ResumeUploader({ onAnalysisComplete }: { onAnalysisComplete: (analysis: string, extractedText: string) => void }) {
+export function ResumeUploader({
+  onAnalysisComplete,
+}: {
+  onAnalysisComplete: (
+    analysis: string,
+    extractedText: string,
+    structuredResume?: any,
+  ) => void;
+}) {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -33,7 +43,11 @@ export function ResumeUploader({ onAnalysisComplete }: { onAnalysisComplete: (an
       }
 
       const data = await res.json();
-      onAnalysisComplete(data.analysis, data.extractedText);
+      onAnalysisComplete(
+        data.analysis,
+        data.extractedText,
+        data.structuredResume,
+      );
     } catch (err) {
       setError("An error occurred during analysis. Please try again.");
       console.error(err);
@@ -70,6 +84,9 @@ export function ResumeUploader({ onAnalysisComplete }: { onAnalysisComplete: (an
           {loading ? "Analyzing..." : "Analyze Resume"}
         </button>
       </div>
+      {loading && (
+        <Loading variant="scan" text="Analyzing Resume..." className="mt-6" />
+      )}
       {error && <p className="mt-4 text-red-600 text-sm">{error}</p>}
     </div>
   );

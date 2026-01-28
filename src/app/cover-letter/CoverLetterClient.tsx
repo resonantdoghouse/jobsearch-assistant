@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 
 import { downloadPDF, downloadDOCX, downloadRTF } from "@/lib/utils/download";
 import { useToast } from "@/components/ToastContext";
+import { Loading } from "@/components/ui/Loading";
 
 interface Resume {
   _id: string;
@@ -320,7 +321,10 @@ export function CoverLetterClient() {
         </div>
 
         {/* Output Area */}
-        <div className="bg-gray-50 p-6 rounded-xl border border-gray-200">
+        <div className="bg-gray-50 p-6 rounded-xl border border-gray-200 relative min-h-[400px]">
+          {loading && (
+            <Loading variant="overlay" text="Generating Cover Letter..." />
+          )}
           {activeTab === "cover-letter" ? (
             <>
               <div className="flex justify-between items-center mb-4">
@@ -353,9 +357,13 @@ export function CoverLetterClient() {
                     <button
                       onClick={handleSave}
                       disabled={isSaving}
-                      className="text-sm bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700 disabled:opacity-50"
+                      className="text-sm bg-indigo-600 text-white px-3 py-1 rounded hover:bg-indigo-700 disabled:opacity-50 min-w-[140px] flex justify-center"
                     >
-                      {isSaving ? "Saving..." : "Save to Dashboard"}
+                      {isSaving ? (
+                        <Loading variant="spinner" text="Saving" />
+                      ) : (
+                        "Save to Dashboard"
+                      )}
                     </button>
                   </div>
                 )}
@@ -405,7 +413,10 @@ export function CoverLetterClient() {
                   )}
                 </div>
 
-                <div className="flex-1 bg-white border border-gray-200 rounded-md p-4 overflow-y-auto">
+                <div className="flex-1 bg-white border border-gray-200 rounded-md p-4 overflow-y-auto relative min-h-[200px]">
+                  {answerLoading && (
+                    <Loading variant="overlay" text="Generating Answer..." />
+                  )}
                   {generatedAnswer ? (
                     <div className="whitespace-pre-wrap text-sm text-gray-800 font-serif leading-relaxed">
                       {generatedAnswer}

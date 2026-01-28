@@ -38,27 +38,52 @@ export async function POST(req: NextRequest) {
     }
 
     const model = getGeminiModel();
-      const prompt = `
-      You are an expert technical recruiter and senior software engineer. 
-      Review the following resume for a developer role. 
-      Provide feedback in markdown format. 
-      Do NOT wrap your response in a code block (e.g. \`\`\`markdown ... \`\`\`). Return raw markdown.
-      
-      Focus on:
-      1. Technical Skills relevance (Use bullet points)
-      2. Project descriptions (Are they using STAR method?)
-      3. Global Formatting and Readability
-      4. ATS Optimization Tips (Keywords to add/remove)
+    const prompt = `
+      You are an expert technical recruiter and senior software engineer.
 
-      Make the output structured with clear Headings (use ## for main sections, ### for subsections).
+      Task:
+      1. Analyze the resume provided below for a developer role.
+      2. Extract the resume content into a structured JSON format.
 
       Resume Content:
       ${text}
+
+      Output Requirements:
+      Return a single valid JSON object with exactly two keys: "analysis" and "structuredResume".
+
+      "analysis": A string containing your detailed feedback in Markdown format. Use ## for main sections. Focus on Technical Skills relevance, Project descriptions (STAR method), Formatting, and ATS Optimization.
+
+      "structuredResume": A JSON object representing the resume content, matching this schema:
+      {
+          "fullName": "string",
+          "contactInfo": { "email": "string", "phone": "string", "location": "string", "linkedin": "string", "website": "string" },
+          "summary": "string",
+          "skills": { "languages": ["string"], "frameworks": ["string"], "tools": ["string"] },
+          "experience": [{ "role": "string", "company": "string", "duration": "string", "description": ["string"] }],
+          "education": [{ "degree": "string", "school": "string", "year": "string" }],
+          "projects": [{ "name": "string", "description": "string", "techStack": ["string"] }]
+      }
+
+      Return ONLY the JSON object. Do not include markdown formatting or code blocks around the JSON.
     `;
 
     const result = await model.generateContent(prompt);
     const response = await result.response;
-    const analysis = response.text();
+    const responseText = response.text();
+
+    let jsonResponse;
+    try {
+        // clean up potential markdown code blocks
+        const cleanedText = responseText.replace(/```json/g, "").replace(/```/g, "").trim();
+        jsonResponse = JSON.parse(cleanedText);
+    } catch (e) {
+        console.error("Failed to parse Gemini response", e);
+        // Fallback if JSON parsing fails - return just analysis as plain text if possible, or error
+        // But for this feature to work, we really need the JSON.
+        return NextResponse.json({ error: "Failed to process resume data" }, { status: 500 });
+    }
+
+    const { analysis, structuredResume } = jsonResponse;
 
     // Auto-save if user is logged in
     const session = await auth();
@@ -83,7 +108,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    return NextResponse.json({ analysis, extractedText: text });
+    return NextResponse.json({ analysis, structuredResume, extractedText: text });
   } catch (error) {
     console.error("Resume analysis error:", error);
     return NextResponse.json(
