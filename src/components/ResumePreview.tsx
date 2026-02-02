@@ -481,19 +481,40 @@ export function ResumePreview({
                     />
                   </div>
                 ) : (
-                  <>
-                    {contactInfo.email && <span>📧 {contactInfo.email}</span>}
-                    {contactInfo.phone && <span>📱 {contactInfo.phone}</span>}
+                  <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-sm">
+                    {contactInfo.email && <span>{contactInfo.email}</span>}
+                    {contactInfo.phone && (
+                      <>
+                        <span className="text-gray-300">•</span>
+                        <span>{contactInfo.phone}</span>
+                      </>
+                    )}
                     {contactInfo.location && (
-                      <span>📍 {contactInfo.location}</span>
+                      <>
+                        <span className="text-gray-300">•</span>
+                        <span>{contactInfo.location}</span>
+                      </>
                     )}
                     {contactInfo.linkedin && (
-                      <span>🔗 {contactInfo.linkedin}</span>
+                      <>
+                        <span className="text-gray-300">•</span>
+                        <span>
+                          {contactInfo.linkedin.replace(
+                            /^https?:\/\/(www\.)?linkedin\.com\/in\//,
+                            "in/",
+                          )}
+                        </span>
+                      </>
                     )}
                     {contactInfo.website && (
-                      <span>🌐 {contactInfo.website}</span>
+                      <>
+                        <span className="text-gray-300">•</span>
+                        <span>
+                          {contactInfo.website.replace(/^https?:\/\//, "")}
+                        </span>
+                      </>
                     )}
-                  </>
+                  </div>
                 )}
               </div>
             </header>

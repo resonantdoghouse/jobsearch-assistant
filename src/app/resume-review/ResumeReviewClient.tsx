@@ -25,6 +25,12 @@ export function ResumeReviewClient() {
   const [isRewriting, setIsRewriting] = useState(false);
   const [showDiff, setShowDiff] = useState(false);
 
+  // New state for Q&A flow
+  const [missingInfoQuestions, setMissingInfoQuestions] = useState<
+    string[] | null
+  >(null);
+  const [userAnswers, setUserAnswers] = useState<Record<string, string>>({});
+
   const [refinementInstruction, setRefinementInstruction] = useState("");
   const [isRefining, setIsRefining] = useState(false);
   const [toast, setToast] = useState<{
@@ -45,11 +51,15 @@ export function ResumeReviewClient() {
     setRewrittenResume(null); // Reset rewrite on new upload
     setShowDiff(false);
     setRefinementInstruction("");
+    setMissingInfoQuestions(null);
+    setUserAnswers({});
   };
 
   const handleApplyFeedback = async () => {
     if (!extractedText) return;
     setIsRewriting(true);
+    setMissingInfoQuestions(null); // Clear previous questions if any
+
     try {
       const res = await fetch("/api/rewrite-resume", {
         method: "POST",
@@ -61,12 +71,83 @@ export function ResumeReviewClient() {
         }),
       });
       const data = await res.json();
-      setRewrittenResume(data.rewrittenContent);
-      setRefinementInstruction("");
-      setToast({ message: "Resume generated successfully!", type: "success" });
+
+      if (data.rewrittenContent) {
+        // Only if we got content back directly (no missing info)
+        if (data.rewrittenContent.questions) {
+          // Handle edge case where model put questions inside rewrittenContent for some reason,
+          // or if we decide to change the API structure later.
+          // For now assuming API returns { rewrittenContent: ... } OR { rewrittenContent: { questions: ... } } ??
+          // Actually API returns plain JSON. If schema 1, it has "questions".
+          if (data.rewrittenContent.questions) {
+            setMissingInfoQuestions(data.rewrittenContent.questions);
+            setToast({ message: "More information needed", type: "info" });
+          } else {
+            setRewrittenResume(data.rewrittenContent);
+            setRefinementInstruction("");
+            setToast({
+              message: "Resume generated successfully!",
+              type: "success",
+            });
+          }
+        } else {
+          setRewrittenResume(data.rewrittenContent);
+          setRefinementInstruction("");
+          setToast({
+            message: "Resume generated successfully!",
+            type: "success",
+          });
+        }
+      } else if (data.error) {
+        setToast({ message: data.error, type: "error" });
+      }
     } catch (error) {
       console.error("Rewrite failed", error);
       setToast({ message: "Failed to generate resume", type: "error" });
+    } finally {
+      setIsRewriting(false);
+    }
+  };
+
+  const handleSubmitAnswers = async () => {
+    if (!extractedText || !missingInfoQuestions) return;
+    setIsRewriting(true);
+
+    // Format answers for the AI
+    const formattedAnswers = Object.entries(userAnswers).map(([q, a]) => ({
+      question: q,
+      answer: a,
+    }));
+
+    try {
+      const res = await fetch("/api/rewrite-resume", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          originalText: extractedText,
+          analysis,
+          format: selectedFormat,
+          answers: formattedAnswers,
+        }),
+      });
+      const data = await res.json();
+
+      if (data.rewrittenContent) {
+        if (data.rewrittenContent.questions) {
+          // Even more questions?
+          setMissingInfoQuestions(data.rewrittenContent.questions);
+          setToast({ message: "Still need a bit more info...", type: "info" });
+          // Keep answers? Or clear? Let's keep them so they can edit if needed, or maybe clear.
+        } else {
+          setRewrittenResume(data.rewrittenContent);
+          setMissingInfoQuestions(null);
+          setRefinementInstruction("");
+          setToast({ message: "Resume complete!", type: "success" });
+        }
+      }
+    } catch (error) {
+      console.error("Answer submission failed", error);
+      setToast({ message: "Failed to process answers", type: "error" });
     } finally {
       setIsRewriting(false);
     }
@@ -122,7 +203,7 @@ export function ResumeReviewClient() {
 
       <ResumeUploader onAnalysisComplete={handleAnalysisComplete} />
 
-      {analysis && (
+      {analysis && !missingInfoQuestions && !rewrittenResume && (
         <div className="space-y-6">
           <ReviewResult analysis={analysis} />
 
@@ -158,6 +239,51 @@ export function ResumeReviewClient() {
               {isRewriting
                 ? "Applying Improvements..."
                 : "Apply Feedback & Rewrite Resume"}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {missingInfoQuestions && (
+        <div className="mt-8 bg-white p-6 rounded-xl shadow-sm border border-orange-200">
+          <h3 className="text-lg font-bold text-orange-800 mb-2">
+            We need a bit more info
+          </h3>
+          <p className="text-gray-600 mb-6">
+            To build the best possible developer resume, we specifically need
+            details on the following:
+          </p>
+
+          <div className="space-y-6">
+            {missingInfoQuestions.map((question, idx) => (
+              <div key={idx}>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {idx + 1}. {question}
+                </label>
+                <textarea
+                  className="w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 min-h-[80px]"
+                  placeholder="Type your answer here..."
+                  value={userAnswers[question] || ""}
+                  onChange={(e) =>
+                    setUserAnswers((prev) => ({
+                      ...prev,
+                      [question]: e.target.value,
+                    }))
+                  }
+                />
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-6 flex justify-end">
+            <button
+              onClick={handleSubmitAnswers}
+              disabled={isRewriting}
+              className="bg-orange-600 hover:bg-orange-700 text-white px-6 py-2 rounded-lg font-medium"
+            >
+              {isRewriting
+                ? "Generating..."
+                : "Submit Answers & Generate Resume"}
             </button>
           </div>
         </div>

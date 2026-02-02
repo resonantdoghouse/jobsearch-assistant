@@ -7,8 +7,8 @@ An AI-powered application designed to assist developers in their job search proc
 ### 1. Resume Review & Editing
 
 - **Smart Analysis**: Upload PDF/DOCX resumes for instant AI feedback on skills, impact, and formatting.
-- **Interactive Editor**: Directly edit your parsed resume data.
-- **AI-Powered Refinement**: rewriting suggestions and improvements for specific sections (Summary, Experience, etc.).
+- **Developer-Centric**: Specialized prompts ensure "Software Engineering" focus, enforcing strict professional standards (no emojis/icons).
+- **Interactive Q&A**: If your resume is missing critical info for a strong developer profile, the AI will ask you specific questions instead of inventing data.
 - **Visual Version Control**: Review changes with a **visual diff** tool before saving updates, ensuring you never lose important details.
 
 ### 2. Cover Letter Generator

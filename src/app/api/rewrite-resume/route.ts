@@ -10,7 +10,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { originalText, analysis, currentResumeJson, format } = await req.json();
+      const { originalText, analysis, currentResumeJson, format, answers } = await req.json();
 
     const model = getGeminiModel();
     const isRefinement =
@@ -45,7 +45,8 @@ export async function POST(req: NextRequest) {
         CRITICAL RULES:
         1. Do NOT invent new projects, skills, or experiences that are not in the Current Resume or explicitly requested in the Refinement Instruction.
         2. Maintain the truthfulness of the original document. Only rephrase or restructure existing facts.
-        3. DO NOT use emojis, icons, or special unicode characters (like checkmarks) in the content strings.
+        3. STRICTLY NO EMOJIS, ICONS, or SPECIAL UNICODE CHARACTERS (like checkmarks, arrows, etc). Use standard text only.
+        4. Focus on software engineering and developer standards.
         
         Output strictly valid JSON matching the same schema as the input.
         Do not include any text outside the JSON block.
@@ -60,29 +61,45 @@ export async function POST(req: NextRequest) {
       }
 
       prompt = `
-        You are an expert professional resume writer.
-        Rewrite the following resume to be more effective for developer roles, applying the feedback provided in the analysis.
-        
+        You are an expert professional resume writer specializing in Software Engineering and Developer roles.
+        Your goal is to rewrite the input resume to be highly effective, ATS-optimized, and professional.
+
         Original Resume Text:
         ${originalText}
         
-        Analysis/Feedback to Apply:
-        ${
-          analysis ||
-          "General improvements for clarity, impact, and ATS optimization."
-        }
+        Analysis/Feedback to Apply:${analysis ? `\n${analysis}` : ""}
+        ${answers ? `\n\nUser Answers to Previous Questions:\n${JSON.stringify(answers)}` : ""}
 
         Style Guide:
         ${styleInstruction}
         
-        CRITICAL RULES:
-        1. Use *only* the information provided in the "Original Resume Text".
-        2. Do NOT hallucinate or invent any new projects, skills, employment history, or degrees.
-        3. If you rephrase bullet points, ensure the core facts (metrics, technologies used) remain true to the source.
-        4. If the Analysis/Feedback asks to "add metrics", only add placeholders if the data isn't there, or better yet, just improve the verb strength without inventing numbers.
-        5. DO NOT use emojis, icons, or special unicode characters (like checkmarks) in the content strings. Keep it text-only for ATS compatibility.
+        CRITICAL EXECUTION PATH:
+        Step 1: Analyze the "Original Resume Text" (and "User Answers" if provided).
+        Step 2: Determine if there is enough information to build a STRONG, COMPETITIVE developer resume.
+           - a "Strong" resume needs: 
+             a) At least 1-2 detailed projects with tech stack.
+             b) Clear work experience with some detail (or strong projects if entry level).
+             c) A list of technical skills.
+        Step 3: 
+           - IF MISSING CRITICAL INFO: Do NOT hallucinate. Do NOT invent projects. Return a "questions" JSON object asking the user for the specific missing details.
+           - IF SUFFICIENT INFO: Generate the full resume JSON.
+
+        CRITICAL RULES FOR RESUME GENERATION:
+        1. Use *only* the information provided.
+        2. Do NOT hallucinate or invent any new projects, skills, companies, or degrees.
+        3. If you rephrase bullet points, ensure the core facts (metrics, technologies used) remain true. If metrics aren't present, improve verb strength but do NOT invent numbers.
+        4. STRICTLY NO EMOJIS, ICONS, or GRAPHICS. Use standard text characters only. This is vital for ATS parsing.
+        5. "Summary" should be a professional profile summary, not an objective statement.
         
-        Output strictly valid JSON matching this schema:
+        SCHEMA 1 (If missing info):
+        {
+            "questions": [
+                "Specific question 1 (e.g., 'Could you provide more details about the tech stack used in the Library Project?')",
+                "Specific question 2"
+            ]
+        }
+
+        SCHEMA 2 (If generating resume):
         {
           "fullName": "string",
           "contactInfo": {
@@ -104,7 +121,7 @@ export async function POST(req: NextRequest) {
                   "role": "string",
                   "company": "string",
                   "duration": "string",
-                  "description": ["string (bullet point starting with action verb)"]
+                  "description": ["string (bullet point starting with strong action verb)"]
               }
           ],
           "education": [
@@ -112,7 +129,6 @@ export async function POST(req: NextRequest) {
                   "degree": "string",
                   "school": "string",
                   "year": "string"
-                  // Do NOT invent a GPA if not provided
               }
           ],
           "projects": [
@@ -123,7 +139,8 @@ export async function POST(req: NextRequest) {
               }
           ]
         }
-        Do not include any text outside the JSON block.
+        
+        Output strictly valid JSON. Do not include any text outside the JSON block.
       `;
     }
 
