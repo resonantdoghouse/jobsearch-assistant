@@ -10,13 +10,21 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { originalText, analysis, currentResumeJson } = await req.json();
+    const { originalText, analysis, currentResumeJson, format } = await req.json();
 
     const model = getGeminiModel();
     const isRefinement =
       originalText === undefined && currentResumeJson !== undefined;
 
     let prompt = "";
+
+    // Define style instructions based on format
+    let styleInstruction = "Standard professional tone. Focus on clarity and ATS optimization.";
+    if (format === 'professional') {
+        styleInstruction = "Strictly formal, traditional professional tone. Use strong action verbs. Avoid buzzwords. Focus heavily on quantifiable achievements and traditional corporate language.";
+    } else if (format === 'modern') {
+         styleInstruction = "Clean, concise, and modern. Emphasize latest tech skills and impact. Use crisp, punchy language.";
+    }
 
     if (isRefinement) {
       prompt = `
@@ -37,6 +45,7 @@ export async function POST(req: NextRequest) {
         CRITICAL RULES:
         1. Do NOT invent new projects, skills, or experiences that are not in the Current Resume or explicitly requested in the Refinement Instruction.
         2. Maintain the truthfulness of the original document. Only rephrase or restructure existing facts.
+        3. DO NOT use emojis, icons, or special unicode characters (like checkmarks) in the content strings.
         
         Output strictly valid JSON matching the same schema as the input.
         Do not include any text outside the JSON block.
@@ -62,12 +71,16 @@ export async function POST(req: NextRequest) {
           analysis ||
           "General improvements for clarity, impact, and ATS optimization."
         }
+
+        Style Guide:
+        ${styleInstruction}
         
         CRITICAL RULES:
         1. Use *only* the information provided in the "Original Resume Text".
         2. Do NOT hallucinate or invent any new projects, skills, employment history, or degrees.
         3. If you rephrase bullet points, ensure the core facts (metrics, technologies used) remain true to the source.
         4. If the Analysis/Feedback asks to "add metrics", only add placeholders if the data isn't there, or better yet, just improve the verb strength without inventing numbers.
+        5. DO NOT use emojis, icons, or special unicode characters (like checkmarks) in the content strings. Keep it text-only for ATS compatibility.
         
         Output strictly valid JSON matching this schema:
         {

@@ -4,7 +4,11 @@ import { useState } from "react";
 import { Toast, ToastType } from "@/components/Toast";
 import { ResumeUploader } from "@/components/ResumeUploader";
 import { ReviewResult } from "@/components/ReviewResult";
-import { ResumePreview, ResumeData } from "@/components/ResumePreview";
+import {
+  ResumePreview,
+  ResumeData,
+  ResumeFormat,
+} from "@/components/ResumePreview";
 import { ResumeDiffViewer } from "@/components/ResumeDiffViewer";
 
 export function ResumeReviewClient() {
@@ -16,6 +20,8 @@ export function ResumeReviewClient() {
   const [currentResumeJson, setCurrentResumeJson] = useState<ResumeData | null>(
     null,
   );
+  const [selectedFormat, setSelectedFormat] =
+    useState<ResumeFormat>("standard");
   const [isRewriting, setIsRewriting] = useState(false);
   const [showDiff, setShowDiff] = useState(false);
 
@@ -48,7 +54,11 @@ export function ResumeReviewClient() {
       const res = await fetch("/api/rewrite-resume", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ originalText: extractedText, analysis }),
+        body: JSON.stringify({
+          originalText: extractedText,
+          analysis,
+          format: selectedFormat,
+        }),
       });
       const data = await res.json();
       setRewrittenResume(data.rewrittenContent);
@@ -116,7 +126,28 @@ export function ResumeReviewClient() {
         <div className="space-y-6">
           <ReviewResult analysis={analysis} />
 
-          <div className="flex justify-end bg-gray-50 p-4 rounded-lg border border-gray-200">
+          <div className="flex flex-col sm:flex-row justify-between items-center gap-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+              <label
+                htmlFor="format-select"
+                className="text-sm font-medium text-gray-700 whitespace-nowrap"
+              >
+                Resume Style:
+              </label>
+              <select
+                id="format-select"
+                value={selectedFormat}
+                onChange={(e) =>
+                  setSelectedFormat(e.target.value as ResumeFormat)
+                }
+                className="block w-full sm:w-48 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
+              >
+                <option value="standard">Standard (ATS Best)</option>
+                <option value="professional">Professional (Classic)</option>
+                <option value="modern">Modern (Clean)</option>
+              </select>
+            </div>
+
             <button
               onClick={handleApplyFeedback}
               disabled={isRewriting}
@@ -177,6 +208,7 @@ export function ResumeReviewClient() {
               content={rewrittenResume}
               analysis={analysis}
               isEditable={true}
+              format={selectedFormat}
             />
           )}
 

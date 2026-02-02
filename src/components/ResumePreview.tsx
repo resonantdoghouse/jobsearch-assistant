@@ -50,15 +50,19 @@ export interface ResumeData {
   }>;
 }
 
+export type ResumeFormat = "standard" | "professional" | "modern";
+
 export function ResumePreview({
   content,
   analysis,
   isEditable = false,
+  format = "standard", // Default format
   onSave,
 }: {
   content: ResumeData | string;
   analysis?: string;
   isEditable?: boolean;
+  format?: ResumeFormat;
   onSave?: (updatedContent: ResumeData) => Promise<void>;
 }) {
   const contentRef = useRef<HTMLDivElement>(null);
@@ -247,6 +251,54 @@ export function ResumePreview({
     projects,
   } = displayContent;
 
+  const getFormatStyles = () => {
+    switch (format) {
+      case "professional":
+        return {
+          container:
+            "bg-white p-[40px] shadow-sm text-gray-900 font-serif max-w-[210mm] mx-auto min-h-[297mm] leading-relaxed",
+          header: "border-b-2 border-gray-800 pb-6 mb-8 text-center",
+          name: "text-3xl font-bold uppercase tracking-widest text-gray-900 mb-3",
+          contact:
+            "flex flex-wrap justify-center gap-4 text-sm text-gray-700 italic",
+          sectionTitle:
+            "text-lg font-bold uppercase border-b border-gray-400 pb-1 mb-4 text-gray-900 tracking-wider",
+          role: "text-lg font-bold text-gray-900",
+          company: "text-base font-semibold text-gray-800 italic mb-1",
+          techStack: "text-xs text-gray-600 italic",
+        };
+      case "modern":
+        return {
+          container:
+            "bg-white p-[40px] shadow-sm text-slate-800 font-sans max-w-[210mm] mx-auto min-h-[297mm] leading-relaxed",
+          header: "mb-8 pb-6 border-b-2 border-indigo-500",
+          name: "text-5xl font-black tracking-tighter text-indigo-900 mb-2",
+          contact: "flex flex-wrap gap-4 text-sm text-slate-500 font-medium",
+          sectionTitle:
+            "text-xl font-bold text-indigo-700 mb-4 flex items-center gap-2 border-l-4 border-indigo-500 pl-3 uppercase tracking-wide",
+          role: "text-xl font-bold text-slate-900",
+          company: "text-base font-medium text-indigo-600 mb-2",
+          techStack: "text-xs text-indigo-500 font-semibold",
+        };
+      case "standard":
+      default:
+        return {
+          container:
+            "bg-white p-[40px] shadow-sm text-gray-900 font-sans max-w-[210mm] mx-auto min-h-[297mm] leading-normal",
+          header: "border-b-2 border-slate-800 pb-6 mb-6",
+          name: "text-4xl font-extrabold uppercase tracking-wide text-slate-900 text-center mb-4",
+          contact: "flex flex-wrap justify-center gap-4 text-sm text-slate-600",
+          sectionTitle:
+            "text-xl font-bold uppercase tracking-wider border-b border-slate-300 pb-1 mb-3 text-slate-800",
+          role: "text-lg font-bold text-slate-900",
+          company: "text-base font-medium text-slate-700 mb-2",
+          techStack: "text-xs text-slate-500 italic",
+        };
+    }
+  };
+
+  const styles = getFormatStyles();
+
   return (
     <>
       {showDiffModal && editedContent && typeof content === "object" && (
@@ -347,26 +399,24 @@ export function ResumePreview({
           {/* Printable Area - CSS Grid Layout */}
           <div
             ref={contentRef}
-            className="bg-white p-[40px] shadow-sm text-gray-900 font-sans max-w-[210mm] mx-auto min-h-[297mm] leading-normal"
+            className={styles.container}
             style={{ width: "210mm", minHeight: "297mm" }}
           >
             {/* Header */}
-            <header className={"border-b-2 border-slate-800 pb-6 mb-6"}>
+            <header className={styles.header}>
               {isEditing ? (
                 <input
                   type="text"
                   value={fullName}
                   onChange={(e) => updateField("fullName", e.target.value)}
-                  className="text-4xl font-extrabold uppercase tracking-wide text-slate-900 text-center mb-4 w-full border-b border-dashed border-gray-300 focus:border-indigo-500 focus:outline-none"
+                  className={`${styles.name} w-full border-b border-dashed border-gray-300 focus:border-indigo-500 focus:outline-none`}
                   placeholder="Full Name"
                 />
               ) : (
-                <h1 className="text-4xl font-extrabold uppercase tracking-wide text-slate-900 text-center mb-4">
-                  {fullName}
-                </h1>
+                <h1 className={styles.name}>{fullName}</h1>
               )}
 
-              <div className="flex flex-wrap justify-center gap-4 text-sm text-slate-600">
+              <div className={styles.contact}>
                 {isEditing ? (
                   <div className="grid grid-cols-2 gap-2 w-full max-w-lg mx-auto">
                     <input
@@ -461,10 +511,10 @@ export function ResumePreview({
                         e.target.value,
                       )
                     }
-                    className="text-xl font-bold uppercase tracking-wider border-b border-slate-300 pb-1 mb-3 text-slate-800 w-full border-dashed focus:border-indigo-500 focus:outline-none"
+                    className={`${styles.sectionTitle} w-full border-dashed focus:border-indigo-500 focus:outline-none`}
                   />
                 ) : (
-                  <h2 className="text-xl font-bold uppercase tracking-wider border-b border-slate-300 pb-1 mb-3 text-slate-800">
+                  <h2 className={styles.sectionTitle}>
                     {sectionTitles.summary}
                   </h2>
                 )}
@@ -497,10 +547,10 @@ export function ResumePreview({
                         e.target.value,
                       )
                     }
-                    className="text-xl font-bold uppercase tracking-wider border-b border-slate-300 pb-1 mb-3 text-slate-800 w-full border-dashed focus:border-indigo-500 focus:outline-none"
+                    className={`${styles.sectionTitle} w-full border-dashed focus:border-indigo-500 focus:outline-none`}
                   />
                 ) : (
-                  <h2 className="text-xl font-bold uppercase tracking-wider border-b border-slate-300 pb-1 mb-3 text-slate-800">
+                  <h2 className={styles.sectionTitle}>
                     {sectionTitles.skills}
                   </h2>
                 )}
@@ -627,10 +677,10 @@ export function ResumePreview({
                         e.target.value,
                       )
                     }
-                    className="text-xl font-bold uppercase tracking-wider border-b border-slate-300 pb-1 mb-3 text-slate-800 w-full border-dashed focus:border-indigo-500 focus:outline-none"
+                    className={`${styles.sectionTitle} w-full border-dashed focus:border-indigo-500 focus:outline-none`}
                   />
                 ) : (
-                  <h2 className="text-xl font-bold uppercase tracking-wider border-b border-slate-300 pb-1 mb-3 text-slate-800">
+                  <h2 className={styles.sectionTitle}>
                     {sectionTitles.experience}
                   </h2>
                 )}
@@ -661,13 +711,11 @@ export function ResumePreview({
                               newExp[idx] = { ...job, role: e.target.value };
                               updateField("experience", newExp);
                             }}
-                            className="text-lg font-bold text-slate-900 border-b border-dashed border-gray-300 w-1/2"
+                            className={`${styles.role} border-b border-dashed border-gray-300 w-1/2`}
                             placeholder="Role"
                           />
                         ) : (
-                          <h3 className="text-lg font-bold text-slate-900">
-                            {job.role}
-                          </h3>
+                          <h3 className={styles.role}>{job.role}</h3>
                         )}
                         {isEditing ? (
                           <input
@@ -697,13 +745,11 @@ export function ResumePreview({
                             newExp[idx] = { ...job, company: e.target.value };
                             updateField("experience", newExp);
                           }}
-                          className="text-base font-medium text-slate-700 mb-2 w-full border-b border-dashed border-gray-300"
+                          className={`${styles.company} w-full border-b border-dashed border-gray-300`}
                           placeholder="Company"
                         />
                       ) : (
-                        <div className="text-base font-medium text-slate-700 mb-2">
-                          {job.company}
-                        </div>
+                        <div className={styles.company}>{job.company}</div>
                       )}
                       <ul className="list-disc pl-5 space-y-1 text-sm text-slate-700">
                         {job.description.map((point, i) => (
@@ -791,10 +837,10 @@ export function ResumePreview({
                         e.target.value,
                       )
                     }
-                    className="text-xl font-bold uppercase tracking-wider border-b border-slate-300 pb-1 mb-3 text-slate-800 w-full border-dashed focus:border-indigo-500 focus:outline-none"
+                    className={`${styles.sectionTitle} w-full border-dashed focus:border-indigo-500 focus:outline-none`}
                   />
                 ) : (
-                  <h2 className="text-xl font-bold uppercase tracking-wider border-b border-slate-300 pb-1 mb-3 text-slate-800">
+                  <h2 className={styles.sectionTitle}>
                     {sectionTitles.projects}
                   </h2>
                 )}
@@ -825,13 +871,11 @@ export function ResumePreview({
                               newProj[idx] = { ...proj, name: e.target.value };
                               updateField("projects", newProj);
                             }}
-                            className="text-lg font-bold text-slate-900 border-b border-dashed border-gray-300 w-1/3"
+                            className={`${styles.role} border-b border-dashed border-gray-300 w-1/3`}
                             placeholder="Project Name"
                           />
                         ) : (
-                          <h3 className="text-lg font-bold text-slate-900">
-                            {proj.name}
-                          </h3>
+                          <h3 className={styles.role}>{proj.name}</h3>
                         )}
                         {isEditing ? (
                           <input
@@ -846,12 +890,12 @@ export function ResumePreview({
                               };
                               updateField("projects", newProj);
                             }}
-                            className="text-xs text-slate-500 italic border-b border-dashed border-gray-300 w-1/2"
+                            className={`${styles.techStack} border-b border-dashed border-gray-300 w-1/2`}
                             placeholder="Tech Stack (comma separated)"
                           />
                         ) : (
                           proj.techStack && (
-                            <span className="text-xs text-slate-500 italic">
+                            <span className={styles.techStack}>
                               [{proj.techStack.join(", ")}]
                             </span>
                           )
@@ -912,10 +956,10 @@ export function ResumePreview({
                         e.target.value,
                       )
                     }
-                    className="text-xl font-bold uppercase tracking-wider border-b border-slate-300 pb-1 mb-3 text-slate-800 w-full border-dashed focus:border-indigo-500 focus:outline-none"
+                    className={`${styles.sectionTitle} w-full border-dashed focus:border-indigo-500 focus:outline-none`}
                   />
                 ) : (
-                  <h2 className="text-xl font-bold uppercase tracking-wider border-b border-slate-300 pb-1 mb-3 text-slate-800">
+                  <h2 className={styles.sectionTitle}>
                     {sectionTitles.education}
                   </h2>
                 )}
@@ -953,7 +997,7 @@ export function ResumePreview({
                                 };
                                 updateField("education", newEdu);
                               }}
-                              className="font-bold text-slate-900 w-full border-b border-dashed border-gray-300"
+                              className={`${styles.role} w-full border-b border-dashed border-gray-300`}
                               placeholder="School"
                             />
                             <input
@@ -966,18 +1010,14 @@ export function ResumePreview({
                                 };
                                 updateField("education", newEdu);
                               }}
-                              className="text-sm text-slate-700 w-full border-b border-dashed border-gray-300"
+                              className={`${styles.company} w-full border-b border-dashed border-gray-300`}
                               placeholder="Degree"
                             />
                           </>
                         ) : (
                           <>
-                            <div className="font-bold text-slate-900">
-                              {edu.school}
-                            </div>
-                            <div className="text-sm text-slate-700">
-                              {edu.degree}
-                            </div>
+                            <div className={styles.role}>{edu.school}</div>
+                            <div className={styles.company}>{edu.degree}</div>
                           </>
                         )}
                       </div>
