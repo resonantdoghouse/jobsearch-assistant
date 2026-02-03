@@ -482,11 +482,23 @@ export function ResumePreview({
                   </div>
                 ) : (
                   <div className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-sm">
-                    {contactInfo.email && <span>{contactInfo.email}</span>}
+                    {contactInfo.email && (
+                      <a
+                        href={`mailto:${contactInfo.email}`}
+                        className="hover:text-indigo-600 transition-colors"
+                      >
+                        {contactInfo.email}
+                      </a>
+                    )}
                     {contactInfo.phone && (
                       <>
                         <span className="text-gray-300">•</span>
-                        <span>{contactInfo.phone}</span>
+                        <a
+                          href={`tel:${contactInfo.phone}`}
+                          className="hover:text-indigo-600 transition-colors"
+                        >
+                          {contactInfo.phone}
+                        </a>
                       </>
                     )}
                     {contactInfo.location && (
@@ -498,20 +510,43 @@ export function ResumePreview({
                     {contactInfo.linkedin && (
                       <>
                         <span className="text-gray-300">•</span>
-                        <span>
-                          {contactInfo.linkedin.replace(
-                            /^https?:\/\/(www\.)?linkedin\.com\/in\//,
-                            "in/",
-                          )}
-                        </span>
+                        <a
+                          href={
+                            contactInfo.linkedin.startsWith("http")
+                              ? contactInfo.linkedin
+                              : `https://${contactInfo.linkedin}`
+                          }
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="hover:text-indigo-600 transition-colors"
+                        >
+                          {contactInfo.linkedin
+                            .replace(
+                              /^https?:\/\/(www\.)?linkedin\.com\/in\//,
+                              "in/",
+                            )
+                            .replace(/^https?:\/\/(www\.)?/, "")}
+                        </a>
                       </>
                     )}
                     {contactInfo.website && (
                       <>
                         <span className="text-gray-300">•</span>
-                        <span>
-                          {contactInfo.website.replace(/^https?:\/\//, "")}
-                        </span>
+                        <a
+                          href={
+                            contactInfo.website.startsWith("http")
+                              ? contactInfo.website
+                              : `https://${contactInfo.website}`
+                          }
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="hover:text-indigo-600 transition-colors"
+                        >
+                          {contactInfo.website.replace(
+                            /^https?:\/\/(www\.)?/,
+                            "",
+                          )}
+                        </a>
                       </>
                     )}
                   </div>

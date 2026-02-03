@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Toast, ToastType } from "@/components/Toast";
 import { ResumeUploader } from "@/components/ResumeUploader";
 import { ReviewResult } from "@/components/ReviewResult";
+import { Loading } from "@/components/ui/Loading";
 import {
   ResumePreview,
   ResumeData,
@@ -241,6 +242,13 @@ export function ResumeReviewClient() {
                 : "Apply Feedback & Rewrite Resume"}
             </button>
           </div>
+          {isRewriting && (
+            <Loading
+              variant="scan"
+              text="Rewriting Resume with Professional Standards..."
+              className="mt-4"
+            />
+          )}
         </div>
       )}
 
@@ -286,6 +294,13 @@ export function ResumeReviewClient() {
                 : "Submit Answers & Generate Resume"}
             </button>
           </div>
+          {isRewriting && (
+            <Loading
+              variant="scan"
+              text="Processing Answers & Generating Resume..."
+              className="mt-4"
+            />
+          )}
         </div>
       )}
 
@@ -369,6 +384,13 @@ export function ResumeReviewClient() {
                   {isRefining ? "Updating..." : "Update Resume"}
                 </button>
               </div>
+              {isRefining && (
+                <Loading
+                  variant="scan"
+                  text="Refining Resume..."
+                  className="mt-4"
+                />
+              )}
             </div>
           </div>
         </div>
