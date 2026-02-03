@@ -1,7 +1,6 @@
 "use client";
 
-import { ResumePreview } from "@/components/ResumePreview";
-import { ResumeData } from "@/components/ResumePreview";
+import { ResumePreview, ResumeData, ResumeFormat } from "@/components/ResumePreview";
 import { useToast } from "@/components/ToastContext";
 import { useState } from "react";
 
@@ -29,6 +28,10 @@ export function ResumeEditor({ resume }: { resume: any }) {
   const [displayContent, setDisplayContent] = useState(content);
   // Also need a key to force ResumePreview to re-initialize
   const [contentKey, setContentKey] = useState(0);
+
+  const [selectedFormat, setSelectedFormat] = useState<ResumeFormat>(
+    resume.format || "standard",
+  );
 
   const performAiEdit = async () => {
     if (!userInstructions.trim()) return;
@@ -62,7 +65,10 @@ export function ResumeEditor({ resume }: { resume: any }) {
       const res = await fetch(`/api/resumes/${resume._id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ content: updatedContent }),
+        body: JSON.stringify({
+          content: updatedContent,
+          format: selectedFormat,
+        }),
       });
 
       if (!res.ok) {
@@ -79,7 +85,20 @@ export function ResumeEditor({ resume }: { resume: any }) {
 
   return (
     <div>
-      <div className="mb-4 flex justify-end">
+      <div className="mb-4 flex justify-between items-center">
+        <div className="flex items-center gap-3">
+          <label className="text-sm font-medium text-gray-700">Template:</label>
+          <select
+            value={selectedFormat}
+            onChange={(e) => setSelectedFormat(e.target.value as ResumeFormat)}
+            className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none bg-white"
+          >
+            <option value="standard">Standard</option>
+            <option value="professional">Professional</option>
+            <option value="modern">Modern</option>
+          </select>
+        </div>
+
         <button
           onClick={() => setIsAiEditing(!isAiEditing)}
           className="flex items-center gap-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-lg font-medium hover:opacity-90 transition-opacity"
@@ -131,6 +150,7 @@ export function ResumeEditor({ resume }: { resume: any }) {
         content={displayContent}
         analysis={analysis}
         isEditable={true}
+        format={selectedFormat}
         onSave={handleSave}
       />
     </div>

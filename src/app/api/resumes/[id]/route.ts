@@ -52,6 +52,10 @@ export async function PUT(
       resume.title = title;
     }
 
+    if (data.format) {
+      resume.format = data.format;
+    }
+
     await resume.save();
 
     return NextResponse.json({

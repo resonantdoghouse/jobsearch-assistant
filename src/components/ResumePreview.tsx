@@ -122,41 +122,59 @@ export function ResumePreview({
     setShowDiffModal(false);
     setIsSaving(true);
     try {
-      if (isEditing && onSave && editedContent) {
-        await onSave(editedContent);
+      if (onSave) {
+        // If parent provides onSave, use it regardless of edit mode
+        // For template changes, we might not be in edit mode
+        const contentToSave =
+          isEditing && editedContent
+            ? editedContent
+            : typeof content === "object"
+              ? (content as ResumeData)
+              : null;
+
+        if (contentToSave) {
+          await onSave(contentToSave);
+          setIsEditing(false);
+          return; // Exit early if handled by onSave
+        }
+      }
+
+      // Original save logic for internal API (only used if onSave is not provided)
+      if (isEditing && editedContent) {
+        // This block might be redundant if we enforce onSave for editing, 
+        // but keeping it for standalone usage logic where onSave might be missing
+        // actually if onSave is missing we fall through to the logic below
+      }
+
+      const title =
+        typeof content === "object"
+          ? `${content.fullName}'s Resume`
+          : "My Resume";
+
+      // Use editedContent if available (e.g. slight tweaks before initial save), else content
+      const contentToSave =
+        isEditing && editedContent ? editedContent : content;
+
+      const res = await fetch("/api/resumes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title,
+          content: contentToSave,
+          analysis,
+        }),
+      });
+
+      if (res.ok) {
+        success("Resume saved successfully to your Dashboard!");
+        // If we were editing (even internally), stop editing
         setIsEditing(false);
       } else {
-        // Original save logic for internal API
-        const title =
-          typeof content === "object"
-            ? `${content.fullName}'s Resume`
-            : "My Resume";
-
-        // Use editedContent if available (e.g. slight tweaks before initial save), else content
-        const contentToSave =
-          isEditing && editedContent ? editedContent : content;
-
-        const res = await fetch("/api/resumes", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            title,
-            content: contentToSave,
-            analysis,
-          }),
-        });
-
-        if (res.ok) {
-          success("Resume saved successfully to your Dashboard!");
-          // If we were editing (even internally), stop editing
-          setIsEditing(false);
+        const err = await res.json();
+        if (res.status === 401) {
+          error("You must be logged in to save resumes.");
         } else {
-          const err = await res.json();
-          if (res.status === 401) {
-            error("You must be logged in to save resumes.");
-          } else {
-            error(`Failed to save: ${err.error || "Unknown error"}`);
-          }
+          error(`Failed to save: ${err.error || "Unknown error"}`);
         }
       }
     } catch (e) {

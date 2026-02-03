@@ -35,6 +35,7 @@ export default async function ResumeViewPage({
   const serializedResume = {
     _id: resume._id.toString(),
     title: resume.title,
+    format: resume.format,
     latestContent: resume.latestContent,
     versions:
       resume.versions?.map((v: any) => ({
