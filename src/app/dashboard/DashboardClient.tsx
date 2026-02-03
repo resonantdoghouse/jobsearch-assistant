@@ -16,6 +16,11 @@ interface DashboardItem {
   content?: string; // For cover letters
   isStarred?: boolean;
   createdAt: string;
+  // Saved Job fields
+  link?: string;
+  company?: string;
+  location?: string;
+  source?: "linkedin" | "indeed";
 }
 
 interface User {
@@ -29,7 +34,8 @@ interface DashboardProps {
   resumes: DashboardItem[];
   analyses: DashboardItem[];
   coverLetters: DashboardItem[];
-  submissions: any[]; // Using any for now to avoid strict typing on populate, ideally create interface
+  submissions: any[];
+  savedJobs: DashboardItem[];
 }
 
 export function DashboardClient({
@@ -38,16 +44,18 @@ export function DashboardClient({
   analyses: initialAnalyses,
   coverLetters: initialCoverLetters,
   submissions,
+  savedJobs: initialSavedJobs,
 }: DashboardProps) {
   const router = useRouter();
   const [resumes, setResumes] = useState(initialResumes);
   const [analyses, setAnalyses] = useState(initialAnalyses);
   const [coverLetters, setCoverLetters] = useState(initialCoverLetters);
+  const [savedJobs, setSavedJobs] = useState(initialSavedJobs);
   const { success, error } = useToast();
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<{
-    type: "resume" | "analysis" | "cover-letter";
+    type: "resume" | "analysis" | "cover-letter" | "saved-job";
     id: string;
   } | null>(null);
 
@@ -58,9 +66,12 @@ export function DashboardClient({
   const [coverLetterSort, setCoverLetterSort] = useState<"newest" | "oldest">(
     "newest",
   );
+  const [savedJobSort, setSavedJobSort] = useState<"newest" | "oldest">(
+    "newest",
+  );
 
   const handleDeleteClick = (
-    type: "resume" | "analysis" | "cover-letter",
+    type: "resume" | "analysis" | "cover-letter" | "saved-job",
     id: string,
   ) => {
     setItemToDelete({ type, id });
@@ -85,6 +96,8 @@ export function DashboardClient({
           setAnalyses((prev) => prev.filter((item) => item._id !== id));
         } else if (type === "cover-letter") {
           setCoverLetters((prev) => prev.filter((item) => item._id !== id));
+        } else if (type === "saved-job") {
+          setSavedJobs((prev) => prev.filter((item) => item._id !== id));
         }
         router.refresh();
         success("Item deleted successfully");
@@ -174,6 +187,7 @@ export function DashboardClient({
   const sortedResumes = sortItems(resumes, resumeSort);
   const sortedAnalyses = sortItems(analyses, analysisSort);
   const sortedCoverLetters = sortItems(coverLetters, coverLetterSort);
+  // We handle savedJobs sort inline or here
 
   return (
     <div>
@@ -221,6 +235,14 @@ export function DashboardClient({
               </div>
               <div className="text-xs font-medium text-green-600 uppercase tracking-wider">
                 Cover Letters
+              </div>
+            </div>
+            <div className="bg-orange-50 px-4 py-3 rounded-lg min-w-[120px] text-center">
+              <div className="text-2xl font-bold text-orange-600">
+                {savedJobs.length}
+              </div>
+              <div className="text-xs font-medium text-orange-600 uppercase tracking-wider">
+                Saved Jobs
               </div>
             </div>
           </div>
@@ -275,6 +297,98 @@ export function DashboardClient({
               ? "Practice More"
               : "Start Practicing"}
           </Link>
+        </div>
+
+        {/* Saved Jobs Section */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-100 p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-xl font-bold flex items-center gap-2">
+              <span className="text-2xl">💼</span> Saved Jobs
+            </h3>
+            <button
+              onClick={() =>
+                setSavedJobSort(savedJobSort === "newest" ? "oldest" : "newest")
+              }
+              className="p-2 text-gray-500 hover:text-orange-600 hover:bg-orange-50 rounded-full transition-colors"
+              title={
+                savedJobSort === "newest" ? "Newest First" : "Oldest First"
+              }
+            >
+              {savedJobSort === "newest" ? (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M12 5v14M19 12l-7 7-7-7" />
+                </svg>
+              ) : (
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M12 19V5M5 12l7-7 7 7" />
+                </svg>
+              )}
+            </button>
+          </div>
+          {savedJobs.length === 0 ? (
+            <p className="text-gray-500 italic">No saved jobs found.</p>
+          ) : (
+            <div className="space-y-3">
+              {sortItems(savedJobs, savedJobSort).map((job) => (
+                <div
+                  key={job._id}
+                  className="flex justify-between items-center p-3 bg-gray-50 rounded border border-gray-100 hover:border-orange-200 transition-colors"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="min-w-0 flex-1">
+                      <div
+                        className="font-semibold text-gray-900 truncate"
+                        title={job.title}
+                      >
+                        <a
+                          href={job.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="hover:text-indigo-600 hover:underline"
+                        >
+                          {job.title}
+                        </a>
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {job.company} • {job.location}
+                      </div>
+                      <div className="text-xs text-gray-400 mt-1">
+                        Saved: {formatDate(job.createdAt)}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleDeleteClick("saved-job", job._id)}
+                      className="text-red-500 hover:text-red-700 text-sm font-medium px-2 py-1"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Resumes Section */}

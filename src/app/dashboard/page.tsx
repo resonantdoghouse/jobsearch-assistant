@@ -6,6 +6,7 @@ import Resume from "@/lib/db/models/Resume";
 import ResumeAnalysis from "@/lib/db/models/ResumeAnalysis";
 import CoverLetter from "@/lib/db/models/CoverLetter";
 import Submission from "@/lib/db/models/Submission";
+import SavedJob from "@/lib/db/models/SavedJob";
 import "@/lib/db/models/Problem";
 import { DashboardClient } from "./DashboardClient";
 
@@ -45,20 +46,17 @@ export default async function DashboardPage() {
   }
 
   // Fetch Data in parallel
-  const [resumes, analyses, coverLetters, submissions] = await Promise.all([
-    Resume.find({ userId: user._id }).sort({ updatedAt: -1 }).lean(),
-    ResumeAnalysis.find({ userId: user._id }).sort({ createdAt: -1 }).lean(),
-    CoverLetter.find({ userId: user._id }).sort({ createdAt: -1 }).lean(),
-    Submission.find({ userId: user._id, status: "Accepted" })
-      .populate("problemId", "title slug difficulty")
-      .sort({ createdAt: -1 })
-      .lean(),
-  ]);
-
-  console.log(
-    "Debug Resumes Starred Status:",
-    resumes.map((r: any) => ({ id: r._id, starred: r.isStarred })),
-  );
+  const [resumes, analyses, coverLetters, submissions, savedJobs] =
+    await Promise.all([
+      Resume.find({ userId: user._id }).sort({ updatedAt: -1 }).lean(),
+      ResumeAnalysis.find({ userId: user._id }).sort({ createdAt: -1 }).lean(),
+      CoverLetter.find({ userId: user._id }).sort({ createdAt: -1 }).lean(),
+      Submission.find({ userId: user._id, status: "Accepted" })
+        .populate("problemId", "title slug difficulty")
+        .sort({ createdAt: -1 })
+        .lean(),
+      SavedJob.find({ userId: user._id }).sort({ createdAt: -1 }).lean(),
+    ]);
 
   return (
     <div>
@@ -73,6 +71,7 @@ export default async function DashboardPage() {
         analyses={JSON.parse(JSON.stringify(analyses))}
         coverLetters={JSON.parse(JSON.stringify(coverLetters))}
         submissions={JSON.parse(JSON.stringify(submissions))}
+        savedJobs={JSON.parse(JSON.stringify(savedJobs))}
       />
     </div>
   );

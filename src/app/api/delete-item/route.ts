@@ -3,6 +3,7 @@ import dbConnect from "@/lib/db/connect";
 import Resume from "@/lib/db/models/Resume";
 import ResumeAnalysis from "@/lib/db/models/ResumeAnalysis";
 import CoverLetter from "@/lib/db/models/CoverLetter";
+import SavedJob from "@/lib/db/models/SavedJob";
 import { NextResponse } from "next/server";
 
 export async function DELETE(req: Request) {
@@ -37,11 +38,16 @@ export async function DELETE(req: Request) {
             deleted = await ResumeAnalysis.findOneAndDelete({ _id: id, userId: user._id });
         } else if (type === 'cover-letter') {
             deleted = await CoverLetter.findOneAndDelete({ _id: id, userId: user._id });
-        } else {
-             return NextResponse.json({ error: "Invalid type" }, { status: 400 });
-        }
-
-        if (!deleted) {
+      } else if (type === "saved-job") {
+        deleted = await SavedJob.findOneAndDelete({ _id: id, userId: user._id });
+      } else {
+        return NextResponse.json(
+          { error: "Invalid item type" },
+          { status: 400 },
+        );
+      }
+      
+      if (!deleted) {
             return NextResponse.json({ error: "Item not found or unauthorized" }, { status: 404 });
         }
 
