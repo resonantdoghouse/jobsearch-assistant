@@ -11,6 +11,8 @@ interface Job {
   link: string;
   date: string;
   source: "linkedin" | "indeed";
+  score?: number;
+  matchReason?: string;
 }
 
 export default function JobSearchPage() {
@@ -43,6 +45,7 @@ export default function JobSearchPage() {
     try {
       const response = await fetch("/api/jobs", {
         method: "POST",
+        credentials: "include", // Ensure cookies are sent
         headers: {
           "Content-Type": "application/json",
         },
@@ -204,10 +207,15 @@ export default function JobSearchPage() {
           {jobs.map((job) => (
             <div
               key={job.id}
-              className="group bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md hover:border-indigo-200 transition-all flex flex-col h-full"
+              className="group bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md hover:border-indigo-200 transition-all flex flex-col h-full relative"
             >
+              {job.score !== undefined && (
+                <div className="absolute top-4 right-4 bg-green-100 text-green-800 text-xs font-bold px-2 py-1 rounded-full border border-green-200">
+                  {job.score}% Match
+                </div>
+              )}
               <div className="flex-grow">
-                <div className="flex justify-between items-start mb-2">
+                <div className="flex justify-between items-start mb-2 pr-20">
                   <span
                     className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                       job.source === "linkedin"
@@ -247,6 +255,12 @@ export default function JobSearchPage() {
                   </svg>
                   {job.location}
                 </div>
+                {job.matchReason && (
+                  <div className="text-xs text-gray-600 bg-gray-50 p-2 rounded border border-gray-100 mt-2">
+                    <span className="font-semibold text-gray-700">Why:</span>{" "}
+                    {job.matchReason}
+                  </div>
+                )}
               </div>
               <div className="mt-4 pt-4 border-t border-gray-100">
                 <a

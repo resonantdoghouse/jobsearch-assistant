@@ -1,5 +1,10 @@
 import { NextResponse } from 'next/server';
 import { scrapeLinkedIn, scrapeIndeed } from '@/lib/scrapers';
+import { scoreJobsWithGemini } from '@/lib/job-matcher';
+import { auth } from '@/auth';
+import Resume from '@/lib/db/models/Resume';
+import clientPromise from '@/lib/db/mongodb';
+import mongoose from 'mongoose';
 
 export async function POST(request: Request) {
   try {
@@ -10,22 +15,58 @@ export async function POST(request: Request) {
     }
 
     const selectedSources = sources || ['linkedin', 'indeed'];
-    const promises = [];
+    const scrapePromises = [];
 
     if (selectedSources.includes('linkedin')) {
-      promises.push(scrapeLinkedIn(keywords, location));
+      scrapePromises.push(scrapeLinkedIn(keywords, location));
     }
 
     if (selectedSources.includes('indeed')) {
-      promises.push(scrapeIndeed(keywords, location));
+      scrapePromises.push(scrapeIndeed(keywords, location));
     }
 
-    const results = await Promise.all(promises);
-    const flatResults = results.flat();
+    const results = await Promise.all(scrapePromises);
+    let flatResults = results.flat();
 
-    // Sort heavily randomized results? Or just shuffle?
-    // Usually sticking to source order or interleave is good.
-    // For now, let's just return them.
+    // Contextual scoring logic
+    const session = await auth();
+
+    if (session?.user?.email) {
+       try {
+        // Ensure DB connection
+        if (mongoose.connection.readyState === 0) {
+            await mongoose.connect(process.env.MONGODB_URI || "");
+        }
+        
+        let userId = session.user.id;
+        
+        // Fallback: Resolve User ID from email if session lacks it
+        if (!userId) {
+             const User = mongoose.models.User || mongoose.model("User", new mongoose.Schema({}));
+             const user = await User.findOne({ email: session.user.email });
+             if (user) {
+                 userId = user._id;
+             }
+        }
+        
+        if (userId) {
+            const resume = await Resume.findOne({ 
+                userId: userId, 
+                isStarred: true 
+            }).sort({ updatedAt: -1 });
+    
+            if (resume && resume.latestContent && flatResults.length > 0) {
+                flatResults = await scoreJobsWithGemini(resume.latestContent, flatResults);
+                
+                // Sort by score if available
+                flatResults.sort((a, b) => (b.score || 0) - (a.score || 0));
+            }
+        }
+       } catch (dbError) {
+         console.warn("Failed to fetch resume or score jobs:", dbError);
+         // Continue without scoring if DB/Gemini fails
+       }
+    }
 
     return NextResponse.json({ jobs: flatResults });
   } catch (error) {

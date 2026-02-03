@@ -9,6 +9,8 @@ export interface Job {
   link: string;
   date: string;
   source: 'linkedin' | 'indeed';
+  score?: number;
+  matchReason?: string;
 }
 
 export async function scrapeLinkedIn(keywords: string, location: string): Promise<Job[]> {
