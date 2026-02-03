@@ -10,6 +10,8 @@ An AI-powered application designed to assist developers in their job search proc
 - **Developer-Centric**: Specialized prompts ensure "Software Engineering" focus, enforcing strict professional standards (no emojis/icons).
 - **Interactive Q&A**: If your resume is missing critical info for a strong developer profile, the AI will ask you specific questions instead of inventing data.
 - **Visual Version Control**: Review changes with a **visual diff** tool before saving updates, ensuring you never lose important details.
+- **Resume Templates**: Choose from 5 professional templates, including **"Minimalist Dev"** and **"Tech Impact"** designed specifically for engineers.
+- **Customization**: Reorder your projects with a simple click to highlight your most relevant work.
 
 ### 2. Cover Letter Generator
 

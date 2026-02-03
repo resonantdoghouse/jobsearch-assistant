@@ -96,6 +96,8 @@ export function ResumeEditor({ resume }: { resume: any }) {
             <option value="standard">Standard</option>
             <option value="professional">Professional</option>
             <option value="modern">Modern</option>
+            <option value="minimalist">Minimalist Dev</option>
+            <option value="tech_impact">Tech Impact</option>
           </select>
         </div>
 
