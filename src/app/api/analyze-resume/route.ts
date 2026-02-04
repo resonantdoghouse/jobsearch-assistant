@@ -39,10 +39,10 @@ export async function POST(req: NextRequest) {
 
     const model = getGeminiModel();
     const prompt = `
-      You are an expert technical recruiter and senior software engineer.
+      You are an expert technical recruiter and senior software engineer specializing in modern web development.
 
       Task:
-      1. Analyze the resume provided below for a developer role.
+      1. Analyze the resume provided below for a developer role, specifically targeting the following top skills: JavaScript, React, Node, Animation, CSS, SCSS, and Express.
       2. Extract the resume content into a structured JSON format.
 
       Resume Content:
@@ -51,7 +51,13 @@ export async function POST(req: NextRequest) {
       Output Requirements:
       Return a single valid JSON object with exactly two keys: "analysis" and "structuredResume".
 
-      "analysis": A string containing your detailed feedback in Markdown format. Use ## for main sections. Focus on Technical Skills relevance, Project descriptions (STAR method), Formatting, and ATS Optimization.
+      "analysis": A string containing your detailed feedback in Markdown format. Use ## for main sections.
+      
+      Your analysis must focus on:
+      - **ATS Optimization**: Identify formatting or keyword gaps that might fail automated scans.
+      - **Role Positioning**: How well does the resume position the candidate for roles involving JavaScript, React, Node, Animation, CSS, SCSS, and Express?
+      - **Content Quality**: suggestions to improve project descriptions using the STAR method (Situation, Task, Action, Result) and impact-driven language.
+      - **Best Practices**: precise feedback on layout, length, and readability.
 
       "structuredResume": A JSON object representing the resume content, matching this schema:
       {
