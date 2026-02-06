@@ -224,7 +224,10 @@ export function ResumeReviewClient() {
                 }
                 className="block w-full sm:w-48 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm p-2 border"
               >
-                <option value="standard">Standard (ATS Best)</option>
+                <option value="standard">Standard</option>
+                <option value="ats_optimized">
+                  ATS Optimized (Recommended)
+                </option>
                 <option value="professional">Professional (Classic)</option>
                 <option value="modern">Modern (Clean)</option>
               </select>

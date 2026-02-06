@@ -50,7 +50,13 @@ export interface ResumeData {
   }>;
 }
 
-export type ResumeFormat = "standard" | "professional" | "modern" | "minimalist" | "tech_impact";
+export type ResumeFormat =
+  | "standard"
+  | "professional"
+  | "modern"
+  | "minimalist"
+  | "tech_impact"
+  | "ats_optimized";
 
 export function ResumePreview({
   content,
@@ -141,7 +147,7 @@ export function ResumePreview({
 
       // Original save logic for internal API (only used if onSave is not provided)
       if (isEditing && editedContent) {
-        // This block might be redundant if we enforce onSave for editing, 
+        // This block might be redundant if we enforce onSave for editing,
         // but keeping it for standalone usage logic where onSave might be missing
         // actually if onSave is missing we fall through to the logic below
       }
@@ -269,8 +275,6 @@ export function ResumePreview({
     projects,
   } = displayContent;
 
-
-
   const getFormatStyles = () => {
     switch (format) {
       case "minimalist":
@@ -279,25 +283,42 @@ export function ResumePreview({
             "bg-white p-[40px] shadow-sm text-gray-800 font-mono text-sm max-w-[210mm] mx-auto min-h-[297mm] leading-relaxed",
           header: "border-b border-gray-300 pb-4 mb-6 text-center",
           name: "text-2xl font-bold text-gray-900 mb-2 tracking-tight",
-          contact: "flex flex-wrap justify-center gap-x-6 gap-y-1 text-xs text-gray-600",
+          contact:
+            "flex flex-wrap justify-center gap-x-6 gap-y-1 text-xs text-gray-600",
           sectionTitle:
             "text-sm font-bold uppercase tracking-widest text-gray-500 border-b border-gray-200 pb-1 mb-3 mt-6",
           role: "text-base font-bold text-gray-900",
           company: "text-sm text-gray-600 mb-1",
-          techStack: "text-xs text-gray-500 bg-gray-100 px-1 py-0.5 rounded inline-block mr-1 mb-1",
+          techStack:
+            "text-xs text-gray-500 bg-gray-100 px-1 py-0.5 rounded inline-block mr-1 mb-1",
         };
       case "tech_impact":
         return {
           container:
             "bg-white p-[40px] shadow-sm text-slate-800 font-sans max-w-[210mm] mx-auto min-h-[297mm] leading-relaxed",
-          header: "bg-slate-900 text-white -mx-[40px] -mt-[40px] p-[40px] mb-8 text-center",
+          header:
+            "bg-slate-900 text-white -mx-[40px] -mt-[40px] p-[40px] mb-8 text-center",
           name: "text-4xl font-bold mb-2 tracking-tight",
           contact: "flex flex-wrap justify-center gap-4 text-sm text-slate-300",
           sectionTitle:
             "text-xl font-bold text-slate-900 mb-4 border-l-4 border-blue-600 pl-3 uppercase tracking-wider",
           role: "text-xl font-bold text-slate-900",
           company: "text-lg font-medium text-blue-600 mb-1",
-          techStack: "text-xs font-semibold text-blue-700 bg-blue-50 px-2 py-1 rounded-full inline-block mr-2 mb-2",
+          techStack:
+            "text-xs font-semibold text-blue-700 bg-blue-50 px-2 py-1 rounded-full inline-block mr-2 mb-2",
+        };
+      case "ats_optimized":
+        return {
+          container:
+            "bg-white p-[40px] shadow-sm text-black font-sans max-w-[210mm] mx-auto min-h-[297mm] leading-normal",
+          header: "border-b border-black pb-4 mb-4 text-left",
+          name: "text-2xl font-bold uppercase text-black mb-2",
+          contact: "flex flex-wrap gap-4 text-xs text-black mb-1",
+          sectionTitle:
+            "text-sm font-bold uppercase border-b border-black pb-1 mb-2 mt-4 text-black tracking-wider",
+          role: "text-sm font-bold text-black",
+          company: "text-sm font-semibold text-black mb-1",
+          techStack: "text-xs text-black italic",
         };
       case "professional":
         return {
@@ -319,7 +340,8 @@ export function ResumePreview({
             "bg-white p-[40px] shadow-sm text-slate-800 font-sans max-w-[210mm] mx-auto min-h-[297mm] leading-relaxed",
           header: "mb-8 pb-6 border-b-2 border-indigo-500 text-center",
           name: "text-5xl font-black tracking-tighter text-indigo-900 mb-2",
-          contact: "flex flex-wrap justify-center gap-4 text-sm text-slate-500 font-medium",
+          contact:
+            "flex flex-wrap justify-center gap-4 text-sm text-slate-500 font-medium",
           sectionTitle:
             "text-xl font-bold text-indigo-700 mb-4 flex items-center gap-2 border-l-4 border-indigo-500 pl-3 uppercase tracking-wide",
           role: "text-xl font-bold text-slate-900",

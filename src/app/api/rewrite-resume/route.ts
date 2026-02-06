@@ -24,6 +24,8 @@ export async function POST(req: NextRequest) {
         styleInstruction = "Strictly formal, traditional professional tone. Use strong action verbs. Avoid buzzwords. Focus heavily on quantifiable achievements and traditional corporate language.";
     } else if (format === 'modern') {
          styleInstruction = "Clean, concise, and modern. Emphasize latest tech skills and impact. Use crisp, punchy language.";
+    } else if (format === 'ats_optimized') {
+        styleInstruction = "MAXIMUM ATS COMPATIBILITY. Single-column layout friendly. Standard standard section headers (Experience, Education, Skills). NO icons. NO creative formatting. Simple, plain, direct text. Emphasize keywords. Use bullet points that are easy to parse.";
     }
 
     if (isRefinement) {

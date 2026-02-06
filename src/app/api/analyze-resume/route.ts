@@ -28,49 +28,52 @@ export async function POST(req: NextRequest) {
     if (file.type === "application/pdf") {
       text = await extractTextFromPDF(buffer);
     } else if (
-      file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      file.type ===
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
     ) {
       const result = await mammoth.extractRawText({ buffer });
       text = result.value;
     } else {
-        // Fallback for plain text or markdown
-        text = buffer.toString('utf-8');
+      // Fallback for plain text or markdown
+      text = buffer.toString("utf-8");
     }
 
     const model = getGeminiModel();
     const prompt = `
       You are an expert technical recruiter and senior software engineer specializing in modern web development.
-
-      Task:
-      1. Analyze the resume provided below for a developer role, specifically targeting the following top skills: JavaScript, React, Node, Animation, CSS, SCSS, and Express.
-      2. Extract the resume content into a structured JSON format.
-
-      Resume Content:
-      ${text}
-
-      Output Requirements:
-      Return a single valid JSON object with exactly two keys: "analysis" and "structuredResume".
-
-      "analysis": A string containing your detailed feedback in Markdown format. Use ## for main sections.
-      
-      Your analysis must focus on:
-      - **ATS Optimization**: Identify formatting or keyword gaps that might fail automated scans.
-      - **Role Positioning**: How well does the resume position the candidate for roles involving JavaScript, React, Node, Animation, CSS, SCSS, and Express?
-      - **Content Quality**: suggestions to improve project descriptions using the STAR method (Situation, Task, Action, Result) and impact-driven language.
-      - **Best Practices**: precise feedback on layout, length, and readability.
-
-      "structuredResume": A JSON object representing the resume content, matching this schema:
-      {
-          "fullName": "string",
-          "contactInfo": { "email": "string", "phone": "string", "location": "string", "linkedin": "string", "website": "string" },
-          "summary": "string",
-          "skills": { "languages": ["string"], "frameworks": ["string"], "tools": ["string"] },
-          "experience": [{ "role": "string", "company": "string", "duration": "string", "description": ["string"] }],
-          "education": [{ "degree": "string", "school": "string", "year": "string" }],
-          "projects": [{ "name": "string", "description": "string", "techStack": ["string"] }]
-      }
-
-      Return ONLY the JSON object. Do not include markdown formatting or code blocks around the JSON.
+ 
+       Task:
+       1. Analyze the resume provided below for a developer role, specifically targeting the following top skills: JavaScript, React, Node, Animation, CSS, SCSS, and Express.
+       2. Extract the resume content into a structured JSON format.
+ 
+       Resume Content:
+       ${text}
+ 
+       Output Requirements:
+       Return a single valid JSON object with exactly two keys: "analysis" and "structuredResume".
+ 
+       "analysis": A string containing your detailed feedback in Markdown format. Use ## for main sections.
+       
+       Your analysis must focus on:
+       - **ATS Optimization Score (0-100)**: Start with a score and a brief explanation.
+       - **ATS Fatal Errors**: Explicitly flag if the resume uses columns, sidebars, tables, graphics, photos, or complex layouts that confuse ATS parsers.
+       - **Role Positioning**: How well does the resume position the candidate for roles involving JavaScript, React, Node, Animation, CSS, SCSS, and Express?
+       - **Developer Pitfalls**: Check for common issues like skill bars (without context), lack of GitHub links, or generic "problem solver" summaries.
+       - **Content Quality**: suggestions to improve project descriptions using the STAR method (Situation, Task, Action, Result) and impact-driven language.
+       - **Best Practices**: precise feedback on layout, length, and readability.
+ 
+       "structuredResume": A JSON object representing the resume content, matching this schema:
+       {
+           "fullName": "string",
+           "contactInfo": { "email": "string", "phone": "string", "location": "string", "linkedin": "string", "website": "string" },
+           "summary": "string",
+           "skills": { "languages": ["string"], "frameworks": ["string"], "tools": ["string"] },
+           "experience": [{ "role": "string", "company": "string", "duration": "string", "description": ["string"] }],
+           "education": [{ "degree": "string", "school": "string", "year": "string" }],
+           "projects": [{ "name": "string", "description": "string", "techStack": ["string"] }]
+       }
+ 
+       Return ONLY the JSON object. Do not include markdown formatting or code blocks around the JSON.
     `;
 
     const result = await model.generateContent(prompt);
@@ -79,14 +82,20 @@ export async function POST(req: NextRequest) {
 
     let jsonResponse;
     try {
-        // clean up potential markdown code blocks
-        const cleanedText = responseText.replace(/```json/g, "").replace(/```/g, "").trim();
-        jsonResponse = JSON.parse(cleanedText);
+      // clean up potential markdown code blocks
+      const cleanedText = responseText
+        .replace(/```json/g, "")
+        .replace(/```/g, "")
+        .trim();
+      jsonResponse = JSON.parse(cleanedText);
     } catch (e) {
-        console.error("Failed to parse Gemini response", e);
-        // Fallback if JSON parsing fails - return just analysis as plain text if possible, or error
-        // But for this feature to work, we really need the JSON.
-        return NextResponse.json({ error: "Failed to process resume data" }, { status: 500 });
+      console.error("Failed to parse Gemini response", e);
+      // Fallback if JSON parsing fails - return just analysis as plain text if possible, or error
+      // But for this feature to work, we really need the JSON.
+      return NextResponse.json(
+        { error: "Failed to process resume data" },
+        { status: 500 },
+      );
     }
 
     const { analysis, structuredResume } = jsonResponse;
@@ -97,7 +106,12 @@ export async function POST(req: NextRequest) {
       try {
         await dbConnect();
         // Dynamically import User to ensure model is registered
-        const User = (await import("mongoose")).models.User || (await import("mongoose")).model("User", new (await import("mongoose")).Schema({}));
+        const User =
+          (await import("mongoose")).models.User ||
+          (await import("mongoose")).model(
+            "User",
+            new (await import("mongoose")).Schema({}),
+          );
         const user = await User.findOne({ email: session.user.email });
 
         if (user) {
@@ -105,7 +119,7 @@ export async function POST(req: NextRequest) {
             userId: user._id,
             fileName: file.name,
             originalText: text,
-            analysis: analysis
+            analysis: analysis,
           });
         }
       } catch (saveError) {
@@ -114,12 +128,16 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    return NextResponse.json({ analysis, structuredResume, extractedText: text });
+    return NextResponse.json({
+      analysis,
+      structuredResume,
+      extractedText: text,
+    });
   } catch (error) {
     console.error("Resume analysis error:", error);
     return NextResponse.json(
       { error: "Failed to analyze resume" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

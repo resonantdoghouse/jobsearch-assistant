@@ -1,6 +1,10 @@
 "use client";
 
-import { ResumePreview, ResumeData, ResumeFormat } from "@/components/ResumePreview";
+import {
+  ResumePreview,
+  ResumeData,
+  ResumeFormat,
+} from "@/components/ResumePreview";
 import { useToast } from "@/components/ToastContext";
 import { useState } from "react";
 
@@ -94,6 +98,7 @@ export function ResumeEditor({ resume }: { resume: any }) {
             className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none bg-white"
           >
             <option value="standard">Standard</option>
+            <option value="ats_optimized">ATS Optimized (Recommended)</option>
             <option value="professional">Professional</option>
             <option value="modern">Modern</option>
             <option value="minimalist">Minimalist Dev</option>
